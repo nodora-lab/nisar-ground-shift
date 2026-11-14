@@ -143,3 +143,12 @@ button{font:inherit;color:inherit;cursor:pointer}
 .panel{scrollbar-width:thin;scrollbar-color:var(--line) transparent}
 .panel::-webkit-scrollbar{width:6px}.panel::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
 @media (max-width: 1180px){ .brand span{display:none} }
+@media (max-width: 820px){
+  .panel{bottom:132px;max-height:42%;padding:14px 16px}
+  .panel h2{font-size:18px;margin:4px 0;padding-right:32px}
+  .panel.collapsed{max-height:none}
+  .panel.collapsed > .kicker{display:block}
+  .credit{font-size:8px;text-align:left}
+  .tl-head b{font-size:16px}
+  .leaflet-control-zoom{display:none}
+}

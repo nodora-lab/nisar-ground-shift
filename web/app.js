@@ -1,7 +1,7 @@
 // Ground Shift web map. SI note: drafted with SI assistance (Claude) and reviewed by the team.
 (async function () {
   const C = window.CONTENT;
-  const data = await fetch("data/sites.json?v=5").then(r => r.json());
+  const data = await fetch("data/sites.json?v=6").then(r => r.json());
   const state = { site: null, i: 0, layer: "rgb", compare: false, a: 0, split: 0.5, timer: null };
   const $ = id => document.getElementById(id);
   const fmt = d => new Date(d + "T00:00:00Z").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
@@ -179,5 +179,6 @@
     if (e.key === "ArrowLeft") { state.i = Math.max(0, state.i - 1); stop(); draw(); }
     if (e.key === "Escape") $("method").hidden = true;
   });
+  if (window.innerWidth <= 820) { $("panel").classList.add("collapsed"); $("panelToggle").textContent = "+"; }
   if (location.hash === "#map") enter();
 })();
