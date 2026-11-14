@@ -1,7 +1,7 @@
 // Ground Shift web map. SI note: drafted with SI assistance (Claude) and reviewed by the team.
 (async function () {
   const C = window.CONTENT;
-  const data = await fetch("data/sites.json?v=3").then(r => r.json());
+  const data = await fetch("data/sites.json?v=4").then(r => r.json());
   const state = { site: null, i: 0, layer: "rgb", compare: false, a: 0, split: 0.5, timer: null };
   const $ = id => document.getElementById(id);
   const fmt = d => new Date(d + "T00:00:00Z").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
@@ -41,17 +41,20 @@
   function preload(layer) {
     S().dates.forEach((_, k) => { const u = url(k, layer); if (!cache[u]) { cache[u] = new Image(); cache[u].src = u; } });
   }
-  let ovSite = null;
+  let ovSite = null, wanted = null;
   function draw() {
     const s = S(), b = s.bounds;
     preload(state.layer);
     if (ovBefore) { map.removeLayer(ovBefore); ovBefore = null; }
     const src = url(state.i, state.layer);
     if (ovAfter && ovSite === s.id) {
-      const im = cache[src];
-      if (im && !im.complete) im.onload = () => ovAfter.setUrl(src); else ovAfter.setUrl(src);
+      // swap only once the new image is decoded, and only if it is still the one we want
+      wanted = src;
+      const im = cache[src] || Object.assign(new Image(), { src });
+      const go = () => { if (wanted === src) ovAfter.setUrl(src); };
+      if (im.complete && im.naturalWidth) go(); else im.decode().then(go, go);
     } else {
-      if (ovAfter) map.removeLayer(ovAfter);
+      wanted = src; if (ovAfter) map.removeLayer(ovAfter);
       ovAfter = L.imageOverlay(src, b, { pane: "after", opacity: 1, className: "pix" }).addTo(map); ovSite = s.id;
     }
     if (state.layer === "chg") { // show context under the change layer
