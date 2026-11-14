@@ -136,3 +136,10 @@ button{font:inherit;color:inherit;cursor:pointer}
 .facts li{font-size:12px;line-height:1.5;color:var(--muted);padding-left:12px;border-left:2px solid var(--line)}
 .facts a{color:var(--teal);text-decoration:none;font:400 10px var(--mono);white-space:nowrap}
 .facts a::before{content:"↗ "}
+.topbar button,.topbar .btn{white-space:nowrap}
+.brand span{white-space:nowrap}
+.tl-track .gaplab{top:-12px}
+.tl-track{margin-top:20px}
+.panel{scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.panel::-webkit-scrollbar{width:6px}.panel::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+@media (max-width: 1180px){ .brand span{display:none} }

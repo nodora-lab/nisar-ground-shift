@@ -24,13 +24,13 @@
   document.querySelectorAll(".card").forEach(b => b.onclick = () => enter(b.dataset.site));
 
   // ---------- Map ----------
-  const map = L.map("map", { zoomControl: false, attributionControl: true, minZoom: 8, maxZoom: 16 });
+  const map = L.map("map", { zoomControl: false, attributionControl: true, minZoom: 8, maxZoom: 16, zoomSnap: 0.25 });
   L.control.zoom({ position: "topright" }).addTo(map);
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png", { subdomains: "abcd", maxZoom: 19, attribution: "© OpenStreetMap contributors © CARTO" }).addTo(map);
+  L.tileLayer("https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}", { maxZoom: 16, attribution: "Basemap © Esri, HERE, Garmin, © OpenStreetMap contributors" }).addTo(map);
   map.createPane("before"); map.getPane("before").style.zIndex = 410;
   map.createPane("after"); map.getPane("after").style.zIndex = 420;
   map.createPane("labels"); map.getPane("labels").style.zIndex = 650; map.getPane("labels").style.pointerEvents = "none";
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png", { subdomains: "abcd", pane: "labels", maxZoom: 19 }).addTo(map);
+  L.tileLayer("https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}", { pane: "labels", maxZoom: 16 }).addTo(map);
   let ovAfter = null, ovBefore = null;
 
   const S = () => data.sites.find(s => s.id === state.site);
@@ -137,7 +137,7 @@
     $("siteSignals").innerHTML = c.signals.map(([col, a, b]) => `<li><i style="background:${col}"></i><div><b>${a}</b><span>${b}</span></div></li>`).join("");
     $("siteWhy").textContent = c.why;
     $("siteFacts").innerHTML = (c.facts || []).map(([t, u, src]) => `<li>${t} <a href="${u}" target="_blank" rel="noopener">${src}</a></li>`).join("");
-    map.fitBounds(s.bounds, { paddingTopLeft: [window.innerWidth > 820 ? 400 : 0, 80], paddingBottomRight: [20, 140] });
+    map.fitBounds(s.bounds, { paddingTopLeft: [window.innerWidth > 820 ? 410 : 0, 72], paddingBottomRight: [window.innerWidth > 820 ? 20 : 0, window.innerWidth > 820 ? 150 : 260] });
     buildTrack(); draw();
   }
   $("siteSwitch").innerHTML = data.sites.map(s => `<button data-site="${s.id}">${(C.sites[s.id] || {}).chip || s.name}</button>`).join("");

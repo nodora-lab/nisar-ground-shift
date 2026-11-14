@@ -6,7 +6,7 @@ window.CONTENT = {
   ],
   sites: {
     saemangeum: {
-      chip: "Saemangeum · tidal flats", color: "var(--teal)",
+      chip: "Saemangeum", color: "var(--teal)",
       short: "Tidal flats → reclaimed land, roads and ports",
       kicker: "STUDY AREA 1 OF 2",
       title: "Saemangeum: a tidal flat becoming land",
@@ -25,7 +25,7 @@ window.CONTENT = {
       ]
     },
     yongin: {
-      chip: "Yongin · farmland → chip fabs", color: "var(--up)",
+      chip: "Yongin", color: "var(--up)",
       short: "Farmland and hills → semiconductor cluster",
       kicker: "STUDY AREA 2 OF 2",
       title: "Yongin: farmland making way for chip factories",
@@ -58,7 +58,7 @@ window.CONTENT = {
 <tr><th>Archive</th><td><a href="https://search.asf.alaska.edu/" target="_blank" rel="noopener">NASA Alaska Satellite Facility DAAC</a>, collections NISAR_L2_GCOV_BETA_V1, NISAR_L2_GCOV_PROVISIONAL_V1, NISAR_L2_GCOV_V1</td></tr>
 <tr><th>Geometry</th><td>Descending track 133, frame 70 — one radar scene covers both study areas</td></tr>
 <tr><th>Dates</th><td>18 acquisitions, Oct 26, 2025 – Nov 2, 2026 (12-day repeat when data is available)</td></tr>
-<tr><th>Basemap</th><td>© OpenStreetMap contributors, © CARTO (labels and dark background only)</td></tr>
+<tr><th>Basemap</th><td>Esri World Dark Gray Canvas (© Esri, HERE, Garmin, © OpenStreetMap contributors), labels and background only</td></tr>
 </table>
 <h3>Processing</h3>
 <ol>

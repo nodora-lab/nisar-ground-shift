@@ -21,7 +21,7 @@ What you can do on the site:
 
 ## Data
 - NISAR L2 GCOV — collections `NISAR_L2_GCOV_BETA_V1`, `NISAR_L2_GCOV_PROVISIONAL_V1`, `NISAR_L2_GCOV_V1` — NASA Alaska Satellite Facility DAAC, accessed with Earthdata Login.
-- Basemap: © OpenStreetMap contributors, © CARTO.
+- Basemap: Esri World Dark Gray Canvas (© Esri, HERE, Garmin, © OpenStreetMap contributors).
 
 ## How to run it yourself
 Requires Python 3.11+ and a free [Earthdata Login](https://urs.earthdata.nasa.gov/).
