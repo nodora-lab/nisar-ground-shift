@@ -1,7 +1,7 @@
 // Ground Shift web map. SI note: drafted with SI assistance (Claude) and reviewed by the team.
 (async function () {
   const C = window.CONTENT;
-  const data = await fetch("data/sites.json?v=4").then(r => r.json());
+  const data = await fetch("data/sites.json?v=5").then(r => r.json());
   const state = { site: null, i: 0, layer: "rgb", compare: false, a: 0, split: 0.5, timer: null };
   const $ = id => document.getElementById(id);
   const fmt = d => new Date(d + "T00:00:00Z").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
@@ -151,7 +151,8 @@
     state.layer = b.dataset.layer; $("layerSwitch").querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); draw();
   });
   $("compareBtn").onclick = () => {
-    state.compare = !state.compare; $("split").hidden = $("compareLabels").hidden = !state.compare;
+    state.compare = !state.compare;
+    if (state.compare) { const b = S().bounds, c = map.latLngToContainerPoint([(b[0][0] + b[1][0]) / 2, (b[0][1] + b[1][1]) / 2]); state.split = Math.min(0.9, Math.max(0.1, c.x / map.getSize().x)); } $("split").hidden = $("compareLabels").hidden = !state.compare;
     $("compareBtn").textContent = state.compare ? "Exit compare" : "Compare dates"; draw();
   };
   const knob = $("split").querySelector(".split-knob");
