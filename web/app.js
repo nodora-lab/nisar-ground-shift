@@ -9,12 +9,12 @@
 
   // ---------- Intro ----------
   const first = data.sites[0];
-  $("introBg").style.backgroundImage = `url(data/${first.id}/${first.dates[first.dates.length - 1].date}_rgb.png)`;
+  $("introBg").style.backgroundImage = `url(data/${first.id}/${first.dates[first.dates.length - 1].date}_rgb.webp)`;
   $("siteCards").innerHTML = data.sites.map(s => {
     const c = C.sites[s.id] || {};
     const last = s.dates[s.dates.length - 1].date;
     return `<button class="card" data-site="${s.id}">
-      <div class="thumb" style="background-image:url(data/${s.id}/${last}_rgb.png)"></div>
+      <div class="thumb" style="background-image:url(data/${s.id}/${last}_rgb.webp)"></div>
       <div class="bar" style="background:${c.color || "var(--teal)"}"></div>
       <h3>${s.name}</h3><p>${c.short || ""}</p>
       <small>${s.dates.length} radar dates · ${fmt(s.dates[0].date)} – ${fmt(last)}</small></button>`;
@@ -34,13 +34,26 @@
   let ovAfter = null, ovBefore = null;
 
   const S = () => data.sites.find(s => s.id === state.site);
-  const url = (i, layer) => `data/${state.site}/${S().dates[i].date}_${layer}.png`;
+  const url = (i, layer) => `data/${state.site}/${S().dates[i].date}_${layer}.webp`;
 
+  // preload every date of the current site + layer so stepping / playing does not flicker
+  const cache = {};
+  function preload(layer) {
+    S().dates.forEach((_, k) => { const u = url(k, layer); if (!cache[u]) { cache[u] = new Image(); cache[u].src = u; } });
+  }
+  let ovSite = null;
   function draw() {
     const s = S(), b = s.bounds;
-    if (ovAfter) map.removeLayer(ovAfter);
+    preload(state.layer);
     if (ovBefore) { map.removeLayer(ovBefore); ovBefore = null; }
-    ovAfter = L.imageOverlay(url(state.i, state.layer), b, { pane: "after", opacity: 1, className: "pix" }).addTo(map);
+    const src = url(state.i, state.layer);
+    if (ovAfter && ovSite === s.id) {
+      const im = cache[src];
+      if (im && !im.complete) im.onload = () => ovAfter.setUrl(src); else ovAfter.setUrl(src);
+    } else {
+      if (ovAfter) map.removeLayer(ovAfter);
+      ovAfter = L.imageOverlay(src, b, { pane: "after", opacity: 1, className: "pix" }).addTo(map); ovSite = s.id;
+    }
     if (state.layer === "chg") { // show context under the change layer
       ovBefore = L.imageOverlay(url(state.i, "hh"), b, { pane: "before", opacity: 0.55 }).addTo(map);
     }
@@ -123,6 +136,7 @@
     $("siteKicker").textContent = c.kicker; $("siteTitle").textContent = c.title; $("siteMeta").textContent = c.meta;
     $("siteSignals").innerHTML = c.signals.map(([col, a, b]) => `<li><i style="background:${col}"></i><div><b>${a}</b><span>${b}</span></div></li>`).join("");
     $("siteWhy").textContent = c.why;
+    $("siteFacts").innerHTML = (c.facts || []).map(([t, u, src]) => `<li>${t} <a href="${u}" target="_blank" rel="noopener">${src}</a></li>`).join("");
     map.fitBounds(s.bounds, { paddingTopLeft: [window.innerWidth > 820 ? 400 : 0, 80], paddingBottomRight: [20, 140] });
     buildTrack(); draw();
   }

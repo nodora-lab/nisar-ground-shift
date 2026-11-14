@@ -66,13 +66,16 @@ def process(url, date, fs):
 
 
 def main():
-    earthaccess.login(strategy="netrc")
+    tok = Path.home() / ".earthdata_token"  # local only, never committed
+    if tok.exists() and not os.getenv("EARTHDATA_TOKEN"):
+        os.environ["EARTHDATA_TOKEN"] = tok.read_text().strip()
+    earthaccess.login(strategy="environment" if os.getenv("EARTHDATA_TOKEN") else "netrc")
     fs = earthaccess.get_fsspec_https_session()
-    res = json.load(open(ROOT.parent / "search_result.json"))
+    res = json.load(open(ROOT / "data" / "search_result.json"))
     rows = res["saemangeum"]["133/70/DESCENDING"]
     only = sys.argv[1:]  # optional list of dates
     for r in rows:
-        date, files, url = r[0], r[3] if False else None, r[3]
+        date, url = r[0], r[3]
         if only and date not in only:
             continue
         try:

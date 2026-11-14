@@ -132,3 +132,7 @@ button{font:inherit;color:inherit;cursor:pointer}
   .split{top:110px}
 }
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
+.facts{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
+.facts li{font-size:12px;line-height:1.5;color:var(--muted);padding-left:12px;border-left:2px solid var(--line)}
+.facts a{color:var(--teal);text-decoration:none;font:400 10px var(--mono);white-space:nowrap}
+.facts a::before{content:"↗ "}

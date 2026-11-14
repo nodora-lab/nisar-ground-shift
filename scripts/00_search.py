@@ -22,4 +22,4 @@ for k,(x,y) in SITES.items():
     print(k, "total", len(allp))
     for t,v in sorted(dates.items(), key=lambda kv:-len(kv[1])):
         print("   ",t,len(v),[d[0][5:]+d[1][0] for d in sorted(v)])
-json.dump(out,open("search_result.json","w"),indent=1,default=str)
+import pathlib; json.dump(out,open(pathlib.Path(__file__).resolve().parents[1]/"data"/"search_result.json","w"),indent=1,default=str)
