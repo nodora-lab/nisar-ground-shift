@@ -102,6 +102,40 @@ def render_one(site, date, ref_date):
             "frac_brighter": frac_up, "frac_darker": frac_dn}
 
 
+# "New built" layer: persistent new strong reflectors using calibrated dates only.
+# Dim in all early-summer dates (max HH <= NEW_EARLY_MAX dB) and bright in all autumn dates (min HH >= NEW_LATE_MIN dB).
+# Requiring every date in both windows to agree removes most crop-season and wind effects.
+NEW_EARLY = ["2026-06-23", "2026-07-05", "2026-07-17"]
+NEW_LATE = ["2026-10-09", "2026-10-21", "2026-11-02"]
+NEW_EARLY_MAX, NEW_LATE_MIN = -8.0, -3.0
+
+
+def render_new(site):
+    from scipy.ndimage import binary_dilation, label, find_objects
+    cfg = SITES[site]; bb = cfg["bbox"]
+    stack = lambda ds: np.stack([to_db(load_on_grid(SUB / f"{site}_{d}_HH.tif", bb)) for d in ds])
+    E, La = stack(NEW_EARLY), stack(NEW_LATE)
+    new = (np.nanmin(La, 0) >= NEW_LATE_MIN) & (np.nanmax(E, 0) <= NEW_EARLY_MAX)
+    lab, n = label(binary_dilation(new, iterations=1))
+    px_m2 = (RES * 111320) * (RES * 111320 * np.cos(np.radians((bb[1] + bb[3]) / 2)))
+    spots = []
+    for k, sl in enumerate(find_objects(lab), start=1):
+        m = (lab[sl] == k) & new[sl]
+        if m.sum() < 4:
+            continue
+        ys, xs = np.nonzero(m); y0, x0 = sl[0].start, sl[1].start
+        lat = bb[3] - (y0 + ys.mean() + 0.5) * RES; lon = bb[0] + (x0 + xs.mean() + 0.5) * RES
+        e = float(np.nanmedian(np.nanmean(E, 0)[sl][m])); l = float(np.nanmedian(np.nanmean(La, 0)[sl][m]))
+        spots.append({"lat": round(lat, 5), "lon": round(lon, 5), "ha": round(float(m.sum()) * px_m2 / 1e4, 2), "early_db": round(e, 1), "late_db": round(l, 1)})
+    spots.sort(key=lambda d: -d["ha"])
+    show = binary_dilation(new, iterations=2)
+    img = np.zeros(new.shape + (4,), dtype="uint8")
+    img[show] = [255, 159, 67, 235]
+    save_rgba(img, WEB / site / "new.webp")
+    print(site, "new built px", int(new.sum()), "spots", len(spots), flush=True)
+    return {"new_ha": round(float(new.sum()) * px_m2 / 1e4, 1), "new_spots": spots[:12], "new_early": NEW_EARLY, "new_late": NEW_LATE}
+
+
 def main():
     from concurrent.futures import ProcessPoolExecutor
     files = sorted(SUB.glob("*_HH.tif"))
@@ -117,11 +151,11 @@ def main():
             dates = sorted(set(dates)); (WEB / site).mkdir(exist_ok=True)
             # change reference = first calibrated (PROVISIONAL or later) date; BETA data is uncalibrated
             ref_date = next((x for x in dates if collection_of(x) != "BETA"), dates[0])
-            jobs[site] = (ref_date, [ex.submit(render_one, site, dt, ref_date) for dt in dates])
-        for site, (ref_date, futs) in jobs.items():
+            jobs[site] = (ref_date, [ex.submit(render_one, site, dt, ref_date) for dt in dates], ex.submit(render_new, site))
+        for site, (ref_date, futs, fnew) in jobs.items():
             cfg = SITES[site]; w, s, e, n = cfg["bbox"]
             out["sites"].append({"id": site, "name": cfg["name"], "bounds": [[s, w], [n, e]], "ref_date": ref_date,
-                                 "dates": [f.result() for f in futs]})
+                                 "dates": [f.result() for f in futs], **fnew.result()})
     json.dump(out, open(WEB / "sites.json", "w"), indent=1)
 
 

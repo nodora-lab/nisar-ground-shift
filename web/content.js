@@ -48,6 +48,7 @@ window.CONTENT = {
     rgb: { title: "RGB COMPOSITE", items: [["#ff5a5a", "Red = HH (surface, buildings)"], ["#5aff8a", "Green = HV (vegetation, rough volume)"], ["#5a8aff", "Blue = HH ÷ HV (smooth vs. rough)"]] },
     hh: { title: "HH BACKSCATTER", items: [["linear-gradient(90deg,#000,#fff)", "−24 dB → +2 dB"]] },
     hv: { title: "HV BACKSCATTER", items: [["linear-gradient(90deg,#000,#fff)", "−32 dB → −8 dB"]] },
+    new: { title: "NEW BUILT · JUN–JUL → OCT–NOV 2026", items: [["#FF9F43", "Dim on all 3 summer dates (≤ −8 dB HH), bright on all 3 autumn dates (≥ −3 dB). Total ≈ {ha} ha in {n} spots — click a circle."], ["transparent", "Strict on purpose: crops and wind rarely pass both tests."]] },
     chg: { title: "HH CHANGE VS. JUN 23, 2026 (FIRST CALIBRATED DATE)", items: [["#FF9F43", "Brighter by ≥ 2 dB (new structures, bare soil)"], ["#4DA3FF", "Darker by ≥ 2 dB (water, smooth fill)"]] }
   },
   method: `<h2>Data &amp; method</h2>

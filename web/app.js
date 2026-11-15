@@ -1,7 +1,7 @@
 // Ground Shift web map. SI note: drafted with SI assistance (Claude) and reviewed by the team.
 (async function () {
   const C = window.CONTENT;
-  const data = await fetch("data/sites.json?v=6").then(r => r.json());
+  const data = await fetch("data/sites.json?v=7").then(r => r.json());
   const state = { site: null, i: 0, layer: "rgb", compare: false, a: 0, split: 0.5, timer: null };
   const $ = id => document.getElementById(id);
   const fmt = d => new Date(d + "T00:00:00Z").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
@@ -34,7 +34,18 @@
   let ovAfter = null, ovBefore = null;
 
   const S = () => data.sites.find(s => s.id === state.site);
-  const url = (i, layer) => `data/${state.site}/${S().dates[i].date}_${layer}.webp`;
+  const url = (i, layer) => layer === "new" ? `data/${state.site}/new.webp` : `data/${state.site}/${S().dates[i].date}_${layer}.webp`;
+  let spots = null;
+  function drawSpots() {
+    if (spots) { map.removeLayer(spots); spots = null; }
+    if (state.layer !== "new") return;
+    const s = S(); spots = L.layerGroup().addTo(map);
+    (s.new_spots || []).forEach((p, k) => {
+      L.circleMarker([p.lat, p.lon], { radius: 9 + Math.min(10, p.ha * 2), color: "#FF9F43", weight: 2, fillOpacity: 0.08 })
+        .bindPopup(`<b>New strong reflector #${k + 1}</b><br>≈ ${p.ha} ha<br>HH ${p.early_db} dB (Jun–Jul) → ${p.late_db} dB (Oct–Nov 2026)<br><a href="https://www.openstreetmap.org/#map=16/${p.lat}/${p.lon}" target="_blank" rel="noopener">Open in a map ↗</a>`)
+        .addTo(spots);
+    });
+  }
 
   // preload every date of the current site + layer so stepping / playing does not flicker
   const cache = {};
@@ -57,12 +68,12 @@
       wanted = src; if (ovAfter) map.removeLayer(ovAfter);
       ovAfter = L.imageOverlay(src, b, { pane: "after", opacity: 1, className: "pix" }).addTo(map); ovSite = s.id;
     }
-    if (state.layer === "chg") { // show context under the change layer
+    if (state.layer === "chg" || state.layer === "new") { // show context under the change layers
       ovBefore = L.imageOverlay(url(state.i, "hh"), b, { pane: "before", opacity: 0.55 }).addTo(map);
     }
     if (state.compare) {
       if (ovBefore) map.removeLayer(ovBefore);
-      ovBefore = L.imageOverlay(url(state.a, state.layer === "chg" ? "rgb" : state.layer), b, { pane: "before" }).addTo(map);
+      ovBefore = L.imageOverlay(url(state.a, (state.layer === "chg" || state.layer === "new") ? "rgb" : state.layer), b, { pane: "before" }).addTo(map);
       clip();
       $("labA").textContent = `BEFORE · ${fmt(s.dates[state.a].date)} (${s.dates[state.a].collection})`;
       $("labB").textContent = `AFTER · ${fmt(s.dates[state.i].date)} (${s.dates[state.i].collection})`;
@@ -73,7 +84,7 @@
     $("curDate").textContent = fmt(d.date);
     $("curTag").textContent = d.collection; $("curTag").style.color = tagColor[d.collection];
     document.querySelectorAll("#track button").forEach((el, k) => { el.classList.toggle("on", k === state.i); el.classList.toggle("a", state.compare && k === state.a); });
-    drawChart(); drawLegend();
+    drawChart(); drawLegend(); drawSpots();
   }
 
   function clip() {
@@ -126,7 +137,8 @@
   }
 
   function drawLegend() {
-    const L_ = C.legend[state.layer];
+    const L_ = JSON.parse(JSON.stringify(C.legend[state.layer])); const s_ = S();
+    L_.items = L_.items.map(([c, x]) => [c, x.replace("{ha}", s_.new_ha).replace("{n}", (s_.new_spots || []).length)]);
     $("legend").innerHTML = `<p>${L_.title}</p>` + L_.items.map(([c, t]) => c.startsWith("linear") ? `<div style="display:block">${t}<div class="ramp" style="background:${c}"></div></div>` : `<div><i style="background:${c}"></i>${t}</div>`).join("");
   }
 
