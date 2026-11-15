@@ -1,16 +1,17 @@
 // Ground Shift web map. SI note: drafted with SI assistance (Claude) and reviewed by the team.
 (async function () {
   const C = window.CONTENT;
-  const data = await fetch("data/sites.json?v=15").then(r => r.json());
-  const OPT = await fetch("data/optical.json?v=15").then(r => r.json()).catch(() => null);
+  const data = await fetch("data/sites.json?v=16").then(r => r.json());
+  const OPT = await fetch("data/optical.json?v=16").then(r => r.json()).catch(() => null);
   // NASA HLS clear-sky composites are matched to radar dates by season; other dates show no optical layer
-  const optSeason = d => (d >= "2026-06-01" && d <= "2026-08-15") ? "summer" : (d >= "2026-09-15" && d <= "2026-11-15") ? "autumn" : null;
+  const optSeason = d => (d >= "2026-06-01" && d <= "2026-08-15") ? "summer" : (d >= "2026-10-01" && d <= "2026-11-02") ? "autumn" : null;
   const pct = x => Math.round(x * 100);
+  // index classes are descriptive, not land-use labels
   const OPTCLS = {
-    water_to_land: { label: "water → not water", cls: "yes", note: "Open water or a wet surface in summer no longer looked like water by autumn: land fill, new structures on the water, or a drained rice paddy." },
-    veg_to_bare: { label: "vegetation → bare", cls: "yes", note: "Green cover in summer was gone by autumn: clearing, or a harvest." },
-    open_both: { label: "already open ground in June", cls: "amb", note: "Ambiguous by the index rule: the ground was already bare before our radar window, so vegetation and water indices cannot show what changed. Compare the two crops: new structures may be visible, but fill or soil changes are also possible." },
-    other: { label: "no clear change", cls: "no", note: "HLS shows no clear water or vegetation change. The radar signal may come from something optics cannot see, or be a false positive." }
+    mndwi_pos_to_neg: { label: "water index turned negative", cls: "yes", note: "The surface looked water-like in summer (MNDWI > 0) and not by autumn (MNDWI < 0). Possible causes: fill, structures on the water, a drained rice paddy, or mixed pixels." },
+    ndvi_high_to_low: { label: "vegetation index dropped", cls: "yes", note: "NDVI was ≥ 0.3 in summer and < 0.2 by autumn. Possible causes: clearing, earthworks, or a harvest." },
+    low_ndvi_both: { label: "low vegetation in both seasons", cls: "amb", note: "Ambiguous: NDVI < 0.2 and MNDWI < 0 in both composites (bare, built or other covers). The indices cannot show what changed here; compare the crops, but fill or soil changes are also possible." },
+    other: { label: "no index class met", cls: "no", note: "No water- or vegetation-index rule was met. The radar change may be something optics cannot see, or a false positive." }
   };
   const state = { site: null, i: 0, layer: "rgb", compare: false, a: 0, split: 0.5, timer: null };
   const $ = id => document.getElementById(id);
@@ -72,14 +73,14 @@
     const crops = p.crop ? `<p class="ev-k">NISAR RADAR (RGB)</p><div class="ev-crops"><figure><img src="data/${s.id}/spots/${p.id}_before.webp" alt="Radar RGB on ${s.new_early[0]}"><figcaption>${fmt(s.new_early[0])}</figcaption></figure><figure><img src="data/${s.id}/spots/${p.id}_after.webp" alt="Radar RGB on ${s.new_late[2]}"><figcaption>${fmt(s.new_late[2])}</figcaption></figure></div>` : "";
     const o = OPT && OPT.sites[s.id] && OPT.sites[s.id].spots[String(p.id)];
     let opt = "";
-    if (o && p.crop) opt += `<p class="ev-k">NASA HLS OPTICAL (LANDSAT + SENTINEL-2) · CLEAR-SKY MEDIAN</p><div class="ev-crops"><figure><img src="data/${s.id}/spots/${p.id}_hls_before.webp" alt="HLS true colour, June to July 2026"><figcaption>Jun–Jul 2026</figcaption></figure><figure><img src="data/${s.id}/spots/${p.id}_hls_after.webp" alt="HLS true colour, October to early November 2026"><figcaption>Oct–Nov 10, 2026</figcaption></figure></div>`;
-    if (o && o.px_with_clear_optics) {
-      const k = OPTCLS[o.main];
-      opt += `<p class="ev-n ev-opt ${k.cls}"><b>Optics: ${k.label}</b> · ${pct(o.share[o.main])}% of the patch's clear pixels<br>${k.note}<br><span>NDVI ${o.ndvi_before} → ${o.ndvi_after} · MNDWI ${o.mndwi_before} → ${o.mndwi_after} · ${o.px_with_clear_optics} clear px</span></p>`;
-    } else if (OPT) opt += `<p class="ev-n ev-opt no"><b>Optics: no cloud-free summer pixel here.</b> This patch cannot be cross-checked.</p>`;
+    if (o && p.crop) opt += `<p class="ev-k">NASA HLS OPTICAL · SEASONAL CLEAR-SKY MEDIANS (NOT SINGLE DATES)</p><div class="ev-crops"><figure><img src="data/${s.id}/spots/${p.id}_hls_before.webp" alt="HLS true colour, June to July 2026"><figcaption>Jun 1–Jul 31 · ${o.clear_obs_summer} obs</figcaption></figure><figure><img src="data/${s.id}/spots/${p.id}_hls_after.webp" alt="HLS true colour, October 1 to November 2, 2026"><figcaption>Oct 1–Nov 2 · ${o.clear_obs_autumn} obs</figcaption></figure></div>`;
+    if (o && o.cells_with_optics) {
+      const k = OPTCLS[o.main], weak = o.clear_obs_summer <= 1 || o.clear_obs_autumn <= 1;
+      opt += `<p class="ev-n ev-opt ${k.cls}"><b>Optical index class: ${k.label}</b> · ${Math.round(o.share[o.main] * o.cells_with_optics)} of ${o.cells_with_optics} assessable cells (${o.cells_total} in patch)${weak ? ` <em class="weak">· single-observation evidence, weak</em>` : ""}<br>${k.note}<br><span>median NDVI ${o.ndvi_before} → ${o.ndvi_after} · MNDWI ${o.mndwi_before} → ${o.mndwi_after}</span></p>`;
+    } else if (OPT) opt += `<p class="ev-n ev-opt no"><b>No cloud-free optical observation in one of the seasons.</b> This patch cannot be cross-checked.</p>`;
     return `<div class="ev"><p class="ev-k">CANDIDATE #${p.id} · ${p.ha} ha · ${p.lat.toFixed(4)}°N ${p.lon.toFixed(4)}°E</p>
       ${crops}<p class="ev-k">PATCH-MEDIAN HH, ALL 18 DATES (TEAL = TEST WINDOWS)</p>${spark(p, s)}${opt}
-      <p class="ev-n">Radar brightening that persisted. Optical agreement supports, but does not prove, a land-surface change such as construction.</p>
+      <p class="ev-n">Orange ring = the candidate cells. Radar brightening that persisted; an optical index class can support, but not prove, a surface change such as construction.</p>
       <a href="https://www.openstreetmap.org/?mlat=${p.lat}&mlon=${p.lon}#map=16/${p.lat}/${p.lon}" target="_blank" rel="noopener">Check on OpenStreetMap ↗</a></div>`;
   }
   function drawSpots() {
@@ -207,9 +208,13 @@
     $("siteWhy").textContent = c.why;
     let fopt = "";
     const os_ = OPT && OPT.sites[id];
-    if (os_ && c.optFinding && os_.candidates_all_pixels.share) {
-      const sh = x => x.share, cs = sh(os_.candidates_all_pixels), ks = sh(os_.control_pixels);
-      fopt = `<span class="fopt">${c.optFinding.replace("{chg}", pct(cs.water_to_land + cs.veg_to_bare)).replace("{chgc}", pct(ks.water_to_land + ks.veg_to_bare)).replace("{open}", pct(cs.open_both)).replace("{openc}", pct(ks.open_both))}</span>`;
+    if (os_ && c.optFinding && os_.candidates.strata) {
+      // {w_k}/{w_n}/{w_p}: water-like-in-summer stratum (v = vegetated, l = low vegetation); "c" = comparison cells within 2 km
+      const ST = { w: "water_like_in_summer", v: "vegetated_in_summer", l: "low_vegetation_in_summer" };
+      fopt = `<span class="fopt">${c.optFinding.replace(/\{(w|v|l)(c?)_(k|n|p)\}/g, (_, st, cmp, f) => {
+        const r = (cmp ? os_.comparison_within_2km : os_.candidates).strata[ST[st]];
+        return f === "p" ? (r.n ? pct(r.k / r.n) : "–") : r[f].toLocaleString("en-US");
+      }).replace("{assess}", os_.candidates.cells_with_optics).replace("{total}", os_.candidates.cells_total)}</span>`;
     }
     $("siteFinding").innerHTML = (c.finding || "").replace("{ha}", s.new_ha).replace("{n}", s.new_spot_count) + fopt + " <u>Show on map →</u>";
     $("siteFinding").onclick = () => { const b = document.querySelector('#layerSwitch [data-layer="new"]'); b && b.click(); setTimeout(() => spotMarkers[0] && spotMarkers[0].openPopup(), 300); };
@@ -246,7 +251,7 @@
   };
   $("panelToggle").onclick = () => { $("panel").classList.toggle("collapsed"); $("panelToggle").textContent = $("panel").classList.contains("collapsed") ? "+" : "–"; };
   const openMethod = e => { if (e) e.preventDefault(); $("method").hidden = false; };
-  $("aboutBtn").onclick = openMethod; $("methodLink").onclick = openMethod;
+  $("aboutBtn").onclick = openMethod; $("methodLink").onclick = openMethod; $("panelMethod").onclick = openMethod;
   $("methodBody").innerHTML = `<button class="btn ghost sm close" id="closeMethod">Close ✕</button>` + C.method;
   $("closeMethod").onclick = () => { $("method").hidden = true; };
   document.addEventListener("keydown", e => {

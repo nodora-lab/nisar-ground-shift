@@ -15,7 +15,7 @@ Both sites sit in the same NISAR scene (descending track 133, frame 70), so 18 r
 What you can do on the site:
 - Step or play through the 18 acquisitions on a time-true timeline. Gaps are marked, and each date is tagged BETA / PROVISIONAL / VALIDATED.
 - Switch between six layers: RGB composite, HH, HV, HH change (vs. Jun 23, 2026, the first PROVISIONAL date), **persistent HH-brightening candidates**, and an **independent optical check** from NASA HLS (Landsat + Sentinel-2).
-- Open an **evidence card** for the largest 12 candidate patches per site: area, coordinates, patch-median HH on all 18 dates, before/after radar crops, before/after HLS optical crops, and the patch's optical class.
+- Open an **evidence card** for the largest 12 candidate patches per site: area, coordinates, patch-median HH on all 18 dates, before/after radar and HLS optical crops with the patch outlined, and the patch's optical index class with denominators.
 - Compare any two dates with a swipe slider and Before/After date pickers (also on phones). You get a warning when the two dates come from products of different maturity.
 - Follow a trend chart of median HH / HV for the area. The line breaks at the BETA boundary.
 - Read what each colour can mean for that place, plus the full data & method page with its limits.
@@ -23,7 +23,7 @@ What you can do on the site:
 
 ## Data
 - NISAR L2 GCOV — collections `NISAR_L2_GCOV_BETA_V1`, `NISAR_L2_GCOV_PROVISIONAL_V1`, `NISAR_L2_GCOV_V1` — NASA Alaska Satellite Facility DAAC, accessed with Earthdata Login.
-- NASA HLS v2.0 (`HLSL30`, `HLSS30`), LP DAAC — summer (Jun 1 – Jul 31, 2026) and autumn (Oct 1 – Nov 10, 2026) clear-sky median composites, read as windows of Cloud-Optimized GeoTIFFs.
+- NASA HLS v2.0 (`HLSL30`, `HLSS30`), LP DAAC — summer (Jun 1 – Jul 31, 2026) and autumn (Oct 1 – Nov 2, 2026) clear-sky median composites, read as windows of Cloud-Optimized GeoTIFFs.
 - Basemap: Esri World Dark Gray Canvas (© Esri, HERE, Garmin, © OpenStreetMap contributors).
 
 ## How to run it yourself
@@ -39,7 +39,7 @@ python -m http.server -d web 8000      # open http://localhost:8000
 ```
 
 Credentials are read from `~/.netrc` (or the `EARTHDATA_TOKEN` environment variable). Never commit them.
-To add a new place, add its bounding box to `SITES` in scripts 01 and 02, add a text block in `web/content.js`, and rerun the scripts.
+To add a new place, add its bounding box to `SITES` in scripts 01, 02 and 03, add a text block in `web/content.js`, and rerun the scripts.
 
 ## Method (short)
 1. Remote subsetting of HDF5 over HTTPS (no full downloads).
@@ -53,10 +53,13 @@ To add a new place, add its bounding box to `SITES` in scripts 01 and 02, add a 
    - all six observations must exist; patches use 1-px dilation, 8-connectivity and at least 4 pixels; only retained patches are mapped and counted
    - area = pixel count × pixel cell area
    - thresholds were set once and not tuned against construction maps
-7. Optical cross-check (NASA HLS): each pixel is classed as water → not water, vegetation → bare, open ground in both seasons, or other, and candidates are compared with a control set (pixels just as dark on all three summer radar dates that did not pass).
-   - Saemangeum: 51% of candidate pixels are water → not water or vegetation → bare, vs. 2% of control pixels.
-   - Yongin: 92% of candidate pixels were already open ground in June, vs. 3% of control pixels (indices cannot see what was built there, so these are marked ambiguous).
-   - A first single-threshold rule also fired on seasonal harvest (55–66% of controls); we replaced it and document both.
+7. Optical cross-check (NASA HLS, exploratory):
+   - seasonal clear-sky references, summer (Jun 1 – Jul 31, 2026) and autumn (Oct 1 – Nov 2, 2026); Fmask (cloud, adjacent, shadow, snow, high aerosol) applied on each scene's native grid before reprojection; NDVI/MNDWI per observation, then medians
+   - index classes (not land-use labels): MNDWI positive → negative, NDVI high → low, low NDVI in both, other
+   - comparison cells: same summer HH rule, failed the autumn test, within 2 km of a candidate; rates compared within the same summer optical state
+   - Saemangeum: water-like-in-summer candidate cells lost the water signal in 59 of 59 cases vs. 9.5% of 52,720 comparison cells; vegetated candidate cells lost the vegetation signal in 63 of 136 (46%) vs. 3.2% of 93,749
+   - Yongin: inconclusive (3 usable summer scenes; 11 of 34 candidate cells assessable)
+   - a first single-threshold rule also fired on seasonal harvest (26–64% of comparison cells); its results are kept in `optical.json`, and the classes were defined after seeing that
 8. Consistency check: the three largest Yongin patches fall inside the area OpenStreetMap maps as the Yongin Semiconductor Cluster construction site. This is a single check, not an accuracy assessment.
 
 Limits:
@@ -65,7 +68,7 @@ Limits:
 - Our set has no acquisitions from Jan 18 to Jun 23, 2026, and NISAR has an instrument gap from Jul 27 to Aug 10, 2026.
 - Backscatter change is not land-use change: wind, rain, soil moisture, crops and geometry also matter.
 - Candidate hectares count pixels that passed the test, not measured footprints.
-- False-positive rates have not been measured. The optical check is supporting evidence, not ground truth; "water → not water" also includes drained rice paddies.
+- False-positive rates have not been measured. The optical check is supporting evidence, not ground truth: index rules also respond to harvest, drainage and mixed pixels, and seasonal composites cannot date a change. The radar test combines PROVISIONAL and VALIDATED products, so processing differences may contribute.
 
 See the Data & method page on the site.
 

@@ -204,3 +204,6 @@ button{font:inherit;color:inherit;cursor:pointer}
   .cmp-pick em{grid-column:1 / -1}
 }
 @media (max-width: 820px){ body:has(#cmpPick:not([hidden])) .panel{display:none} }
+.mlink{display:block;margin-top:16px;color:var(--teal);font:500 12px var(--mono);text-decoration:none}
+.ev-opt em.weak{font-style:normal;color:var(--prov)}
+@media (min-width: 821px){ .compare-labels{top:auto;bottom:190px} }

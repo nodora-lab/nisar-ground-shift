@@ -1,5 +1,5 @@
 {
- "classes": "Per-pixel optical class between the summer (a) and autumn (b) composites.\nwater_to_land: MNDWI > 0 in summer and < 0 in autumn (open water or wet flat became dry ground)\nveg_to_bare:   NDVI >= 0.3 in summer and < 0.2 in autumn, not water in autumn (vegetation removed or harvested)\nopen_both:     NDVI < 0.2 and MNDWI < 0 in both (ground that was already open/bare in summer; optics cannot\n               see whether something was built on it)\nother:         everything else (no clear change, greening, water that stayed water ...)",
+ "product": "HLS v2.0 (HLSL30 + HLSS30), LP DAAC",
  "windows": {
   "summer": [
    "2026-06-01",
@@ -7,10 +7,18 @@
   ],
   "autumn": [
    "2026-10-01",
-   "2026-11-10"
+   "2026-11-02"
   ]
  },
- "product": "HLS v2.0 (HLSL30 + HLSS30), LP DAAC",
+ "qa": "Fmask applied on each scene's native grid before reprojection: no cloud, adjacent cloud/shadow, cloud shadow, snow/ice; aerosol not high",
+ "classes": {
+  "mndwi_pos_to_neg": "MNDWI > 0 in summer and < 0 in autumn",
+  "ndvi_high_to_low": "NDVI >= 0.3 in summer; NDVI < 0.2 and MNDWI < 0 in autumn",
+  "low_ndvi_both": "NDVI < 0.2 and MNDWI < 0 in both seasons",
+  "other": "everything else"
+ },
+ "first_rule": "|dNDVI| >= 0.2 or |dMNDWI| >= 0.2 (abandoned: fired on seasonal harvest)",
+ "comparison": "all six radar dates, HH <= -8 dB on all summer dates, failed the autumn test, >= 3 px from candidates; within_2km also <= 2 km from a candidate",
  "sites": {
   "saemangeum": {
    "granules": {
@@ -21,24 +29,9 @@
       "id": "HLS.S30.T52SBE.2026156T021531.v2.0"
      },
      {
-      "date": "2026-06-07",
-      "sensor": "HLSS30",
-      "id": "HLS.S30.T52SBE.2026158T022131.v2.0"
-     },
-     {
-      "date": "2026-06-09",
-      "sensor": "HLSL30",
-      "id": "HLS.L30.T52SBE.2026160T020421.v2.0"
-     },
-     {
       "date": "2026-06-10",
       "sensor": "HLSS30",
       "id": "HLS.S30.T52SBE.2026161T021529.v2.0"
-     },
-     {
-      "date": "2026-06-15",
-      "sensor": "HLSS30",
-      "id": "HLS.S30.T51SYV.2026166T021531.v2.0"
      },
      {
       "date": "2026-06-15",
@@ -53,22 +46,12 @@
      {
       "date": "2026-06-16",
       "sensor": "HLSL30",
-      "id": "HLS.L30.T51SYV.2026167T021038.v2.0"
-     },
-     {
-      "date": "2026-06-16",
-      "sensor": "HLSL30",
       "id": "HLS.L30.T52SBE.2026167T021038.v2.0"
      },
      {
       "date": "2026-06-16",
       "sensor": "HLSL30",
       "id": "HLS.L30.T52SCE.2026167T021038.v2.0"
-     },
-     {
-      "date": "2026-06-27",
-      "sensor": "HLSS30",
-      "id": "HLS.S30.T51SYV.2026178T022131.v2.0"
      },
      {
       "date": "2026-06-27",
@@ -83,17 +66,7 @@
      {
       "date": "2026-06-30",
       "sensor": "HLSS30",
-      "id": "HLS.S30.T51SYV.2026181T021529.v2.0"
-     },
-     {
-      "date": "2026-06-30",
-      "sensor": "HLSS30",
       "id": "HLS.S30.T52SBE.2026181T021529.v2.0"
-     },
-     {
-      "date": "2026-06-30",
-      "sensor": "HLSS30",
-      "id": "HLS.S30.T52SCE.2026181T021529.v2.0"
      },
      {
       "date": "2026-07-11",
@@ -119,6 +92,16 @@
       "date": "2026-07-26",
       "sensor": "HLSL30",
       "id": "HLS.L30.T52SBE.2026207T021111.v2.0"
+     },
+     {
+      "date": "2026-07-26",
+      "sensor": "HLSL30",
+      "id": "HLS.L30.T52SCE.2026207T021111.v2.0"
+     },
+     {
+      "date": "2026-07-30",
+      "sensor": "HLSS30",
+      "id": "HLS.S30.T51SYV.2026211T021529.v2.0"
      },
      {
       "date": "2026-07-30",
@@ -205,11 +188,6 @@
      {
       "date": "2026-10-22",
       "sensor": "HLSL30",
-      "id": "HLS.L30.T51SYV.2026295T021127.v2.0"
-     },
-     {
-      "date": "2026-10-22",
-      "sensor": "HLSL30",
       "id": "HLS.L30.T52SBE.2026295T021127.v2.0"
      },
      {
@@ -279,398 +257,873 @@
      }
     ]
    },
-   "candidates_all_pixels": {
-    "px_with_clear_optics": 239,
+   "candidates": {
+    "cells_total": 239,
+    "cells_with_optics": 239,
     "share": {
-     "water_to_land": 0.243,
-     "veg_to_bare": 0.264,
-     "open_both": 0.075,
-     "other": 0.418
+     "mndwi_pos_to_neg": 0.247,
+     "ndvi_high_to_low": 0.264,
+     "low_ndvi_both": 0.075,
+     "other": 0.414
     },
     "main": "other",
-    "ndvi_before": 0.37,
-    "ndvi_after": 0.18,
+    "strata": {
+     "water_like_in_summer": {
+      "n": 59,
+      "k": 59,
+      "event": "MNDWI turned negative"
+     },
+     "vegetated_in_summer": {
+      "n": 136,
+      "k": 63,
+      "event": "NDVI fell below 0.2"
+     },
+     "low_vegetation_in_summer": {
+      "n": 20,
+      "k": 18,
+      "event": "stayed low in autumn"
+     }
+    },
+    "first_rule_share_changed": 0.72,
+    "ndvi_before": 0.36,
+    "ndvi_after": 0.19,
     "mndwi_before": -0.31,
-    "mndwi_after": -0.36
+    "mndwi_after": -0.37
    },
-   "control_pixels": {
-    "px_with_clear_optics": 1404593,
+   "comparison_all": {
+    "cells_total": 1404593,
+    "cells_with_optics": 1359605,
     "share": {
-     "water_to_land": 0.013,
-     "veg_to_bare": 0.009,
-     "open_both": 0.027,
-     "other": 0.951
+     "mndwi_pos_to_neg": 0.016,
+     "ndvi_high_to_low": 0.008,
+     "low_ndvi_both": 0.027,
+     "other": 0.949
     },
     "main": "other",
+    "strata": {
+     "water_like_in_summer": {
+      "n": 750092,
+      "k": 21905,
+      "event": "MNDWI turned negative"
+     },
+     "vegetated_in_summer": {
+      "n": 441751,
+      "k": 10832,
+      "event": "NDVI fell below 0.2"
+     },
+     "low_vegetation_in_summer": {
+      "n": 63443,
+      "k": 36234,
+      "event": "stayed low in autumn"
+     }
+    },
+    "first_rule_share_changed": 0.636,
     "ndvi_before": 0.03,
-    "ndvi_after": -0.4,
-    "mndwi_before": -0.0,
-    "mndwi_after": 0.67
+    "ndvi_after": -0.32,
+    "mndwi_before": 0.11,
+    "mndwi_after": 0.6
    },
-   "control_land_pixels": {
-    "px_with_clear_optics": 707188,
+   "comparison_within_2km": {
+    "cells_total": 188458,
+    "cells_with_optics": 182717,
     "share": {
-     "water_to_land": 0.0,
-     "veg_to_bare": 0.017,
-     "open_both": 0.054,
-     "other": 0.929
+     "mndwi_pos_to_neg": 0.028,
+     "ndvi_high_to_low": 0.017,
+     "low_ndvi_both": 0.057,
+     "other": 0.899
     },
     "main": "other",
-    "ndvi_before": 0.39,
-    "ndvi_after": 0.35,
-    "mndwi_before": -0.38,
-    "mndwi_after": -0.43
+    "strata": {
+     "water_like_in_summer": {
+      "n": 52720,
+      "k": 5032,
+      "event": "MNDWI turned negative"
+     },
+     "vegetated_in_summer": {
+      "n": 93749,
+      "k": 3022,
+      "event": "NDVI fell below 0.2"
+     },
+     "low_vegetation_in_summer": {
+      "n": 14351,
+      "k": 10383,
+      "event": "stayed low in autumn"
+     }
+    },
+    "first_rule_share_changed": 0.429,
+    "ndvi_before": 0.31,
+    "ndvi_after": 0.29,
+    "mndwi_before": -0.35,
+    "mndwi_after": -0.41
    },
    "spots": {
     "1": {
-     "px_with_clear_optics": 65,
+     "cells_total": 65,
+     "cells_with_optics": 65,
      "share": {
-      "water_to_land": 0.0,
-      "veg_to_bare": 0.831,
-      "open_both": 0.0,
+      "mndwi_pos_to_neg": 0.0,
+      "ndvi_high_to_low": 0.831,
+      "low_ndvi_both": 0.0,
       "other": 0.169
      },
-     "main": "veg_to_bare",
-     "ndvi_before": 0.59,
-     "ndvi_after": 0.1,
-     "mndwi_before": -0.42,
-     "mndwi_after": -0.27,
+     "main": "ndvi_high_to_low",
+     "strata": {
+      "water_like_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "MNDWI turned negative"
+      },
+      "vegetated_in_summer": {
+       "n": 65,
+       "k": 54,
+       "event": "NDVI fell below 0.2"
+      },
+      "low_vegetation_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "stayed low in autumn"
+      }
+     },
+     "first_rule_share_changed": 1.0,
+     "ndvi_before": 0.6,
+     "ndvi_after": 0.11,
+     "mndwi_before": -0.43,
+     "mndwi_after": -0.29,
      "clear_obs_summer": 7,
      "clear_obs_autumn": 8
     },
     "2": {
-     "px_with_clear_optics": 43,
+     "cells_total": 43,
+     "cells_with_optics": 43,
      "share": {
-      "water_to_land": 0.116,
-      "veg_to_bare": 0.0,
-      "open_both": 0.0,
+      "mndwi_pos_to_neg": 0.116,
+      "ndvi_high_to_low": 0.0,
+      "low_ndvi_both": 0.0,
       "other": 0.884
      },
      "main": "other",
-     "ndvi_before": 0.26,
-     "ndvi_after": 0.43,
-     "mndwi_before": -0.15,
+     "strata": {
+      "water_like_in_summer": {
+       "n": 5,
+       "k": 5,
+       "event": "MNDWI turned negative"
+      },
+      "vegetated_in_summer": {
+       "n": 15,
+       "k": 0,
+       "event": "NDVI fell below 0.2"
+      },
+      "low_vegetation_in_summer": {
+       "n": 2,
+       "k": 0,
+       "event": "stayed low in autumn"
+      }
+     },
+     "first_rule_share_changed": 0.535,
+     "ndvi_before": 0.27,
+     "ndvi_after": 0.42,
+     "mndwi_before": -0.17,
      "mndwi_after": -0.35,
      "clear_obs_summer": 4,
      "clear_obs_autumn": 8
     },
     "3": {
-     "px_with_clear_optics": 14,
+     "cells_total": 14,
+     "cells_with_optics": 14,
      "share": {
-      "water_to_land": 0.0,
-      "veg_to_bare": 0.0,
-      "open_both": 0.0,
+      "mndwi_pos_to_neg": 0.0,
+      "ndvi_high_to_low": 0.0,
+      "low_ndvi_both": 0.0,
       "other": 1.0
      },
      "main": "other",
-     "ndvi_before": 0.42,
-     "ndvi_after": 0.41,
+     "strata": {
+      "water_like_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "MNDWI turned negative"
+      },
+      "vegetated_in_summer": {
+       "n": 14,
+       "k": 0,
+       "event": "NDVI fell below 0.2"
+      },
+      "low_vegetation_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "stayed low in autumn"
+      }
+     },
+     "first_rule_share_changed": 0.0,
+     "ndvi_before": 0.5,
+     "ndvi_after": 0.39,
      "mndwi_before": -0.57,
-     "mndwi_after": -0.62,
-     "clear_obs_summer": 7,
+     "mndwi_after": -0.61,
+     "clear_obs_summer": 8,
      "clear_obs_autumn": 22
     },
     "4": {
-     "px_with_clear_optics": 11,
+     "cells_total": 11,
+     "cells_with_optics": 11,
      "share": {
-      "water_to_land": 1.0,
-      "veg_to_bare": 0.0,
-      "open_both": 0.0,
+      "mndwi_pos_to_neg": 1.0,
+      "ndvi_high_to_low": 0.0,
+      "low_ndvi_both": 0.0,
       "other": 0.0
      },
-     "main": "water_to_land",
+     "main": "mndwi_pos_to_neg",
+     "strata": {
+      "water_like_in_summer": {
+       "n": 11,
+       "k": 11,
+       "event": "MNDWI turned negative"
+      },
+      "vegetated_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "NDVI fell below 0.2"
+      },
+      "low_vegetation_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "stayed low in autumn"
+      }
+     },
+     "first_rule_share_changed": 1.0,
      "ndvi_before": -0.13,
-     "ndvi_after": 0.03,
-     "mndwi_before": 0.54,
+     "ndvi_after": 0.02,
+     "mndwi_before": 0.45,
      "mndwi_after": -0.57,
-     "clear_obs_summer": 5,
+     "clear_obs_summer": 4,
      "clear_obs_autumn": 8
     },
     "5": {
-     "px_with_clear_optics": 11,
+     "cells_total": 11,
+     "cells_with_optics": 11,
      "share": {
-      "water_to_land": 1.0,
-      "veg_to_bare": 0.0,
-      "open_both": 0.0,
+      "mndwi_pos_to_neg": 1.0,
+      "ndvi_high_to_low": 0.0,
+      "low_ndvi_both": 0.0,
       "other": 0.0
      },
-     "main": "water_to_land",
-     "ndvi_before": -0.11,
+     "main": "mndwi_pos_to_neg",
+     "strata": {
+      "water_like_in_summer": {
+       "n": 11,
+       "k": 11,
+       "event": "MNDWI turned negative"
+      },
+      "vegetated_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "NDVI fell below 0.2"
+      },
+      "low_vegetation_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "stayed low in autumn"
+      }
+     },
+     "first_rule_share_changed": 1.0,
+     "ndvi_before": -0.13,
      "ndvi_after": 0.01,
-     "mndwi_before": 0.46,
+     "mndwi_before": 0.45,
      "mndwi_after": -0.55,
      "clear_obs_summer": 4,
      "clear_obs_autumn": 10
     },
     "6": {
-     "px_with_clear_optics": 11,
+     "cells_total": 11,
+     "cells_with_optics": 11,
      "share": {
-      "water_to_land": 0.0,
-      "veg_to_bare": 0.0,
-      "open_both": 0.0,
+      "mndwi_pos_to_neg": 0.0,
+      "ndvi_high_to_low": 0.0,
+      "low_ndvi_both": 0.0,
       "other": 1.0
      },
      "main": "other",
-     "ndvi_before": 0.31,
-     "ndvi_after": 0.6,
-     "mndwi_before": -0.31,
-     "mndwi_after": -0.39,
-     "clear_obs_summer": 6,
+     "strata": {
+      "water_like_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "MNDWI turned negative"
+      },
+      "vegetated_in_summer": {
+       "n": 11,
+       "k": 0,
+       "event": "NDVI fell below 0.2"
+      },
+      "low_vegetation_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "stayed low in autumn"
+      }
+     },
+     "first_rule_share_changed": 0.727,
+     "ndvi_before": 0.36,
+     "ndvi_after": 0.61,
+     "mndwi_before": -0.34,
+     "mndwi_after": -0.38,
+     "clear_obs_summer": 5,
      "clear_obs_autumn": 12
     },
     "7": {
-     "px_with_clear_optics": 8,
+     "cells_total": 8,
+     "cells_with_optics": 8,
      "share": {
-      "water_to_land": 1.0,
-      "veg_to_bare": 0.0,
-      "open_both": 0.0,
+      "mndwi_pos_to_neg": 1.0,
+      "ndvi_high_to_low": 0.0,
+      "low_ndvi_both": 0.0,
       "other": 0.0
      },
-     "main": "water_to_land",
-     "ndvi_before": -0.14,
-     "ndvi_after": 0.01,
-     "mndwi_before": 0.07,
-     "mndwi_after": -0.13,
-     "clear_obs_summer": 6,
-     "clear_obs_autumn": 9
+     "main": "mndwi_pos_to_neg",
+     "strata": {
+      "water_like_in_summer": {
+       "n": 8,
+       "k": 8,
+       "event": "MNDWI turned negative"
+      },
+      "vegetated_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "NDVI fell below 0.2"
+      },
+      "low_vegetation_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "stayed low in autumn"
+      }
+     },
+     "first_rule_share_changed": 1.0,
+     "ndvi_before": -0.12,
+     "ndvi_after": 0.02,
+     "mndwi_before": 0.22,
+     "mndwi_after": -0.12,
+     "clear_obs_summer": 1,
+     "clear_obs_autumn": 7
     },
     "8": {
-     "px_with_clear_optics": 7,
+     "cells_total": 7,
+     "cells_with_optics": 7,
      "share": {
-      "water_to_land": 0.0,
-      "veg_to_bare": 0.0,
-      "open_both": 1.0,
+      "mndwi_pos_to_neg": 0.0,
+      "ndvi_high_to_low": 0.0,
+      "low_ndvi_both": 1.0,
       "other": 0.0
      },
-     "main": "open_both",
-     "ndvi_before": 0.1,
+     "main": "low_ndvi_both",
+     "strata": {
+      "water_like_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "MNDWI turned negative"
+      },
+      "vegetated_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "NDVI fell below 0.2"
+      },
+      "low_vegetation_in_summer": {
+       "n": 7,
+       "k": 7,
+       "event": "stayed low in autumn"
+      }
+     },
+     "first_rule_share_changed": 0.0,
+     "ndvi_before": 0.12,
      "ndvi_after": 0.12,
-     "mndwi_before": -0.22,
+     "mndwi_before": -0.24,
      "mndwi_after": -0.25,
      "clear_obs_summer": 6,
      "clear_obs_autumn": 8
     },
     "9": {
-     "px_with_clear_optics": 7,
+     "cells_total": 7,
+     "cells_with_optics": 7,
      "share": {
-      "water_to_land": 1.0,
-      "veg_to_bare": 0.0,
-      "open_both": 0.0,
+      "mndwi_pos_to_neg": 1.0,
+      "ndvi_high_to_low": 0.0,
+      "low_ndvi_both": 0.0,
       "other": 0.0
      },
-     "main": "water_to_land",
-     "ndvi_before": -0.05,
+     "main": "mndwi_pos_to_neg",
+     "strata": {
+      "water_like_in_summer": {
+       "n": 7,
+       "k": 7,
+       "event": "MNDWI turned negative"
+      },
+      "vegetated_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "NDVI fell below 0.2"
+      },
+      "low_vegetation_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "stayed low in autumn"
+      }
+     },
+     "first_rule_share_changed": 1.0,
+     "ndvi_before": -0.08,
      "ndvi_after": 0.01,
      "mndwi_before": 0.39,
-     "mndwi_after": -0.53,
+     "mndwi_after": -0.52,
      "clear_obs_summer": 5,
-     "clear_obs_autumn": 8
+     "clear_obs_autumn": 7
     },
     "10": {
-     "px_with_clear_optics": 6,
+     "cells_total": 6,
+     "cells_with_optics": 6,
      "share": {
-      "water_to_land": 1.0,
-      "veg_to_bare": 0.0,
-      "open_both": 0.0,
+      "mndwi_pos_to_neg": 1.0,
+      "ndvi_high_to_low": 0.0,
+      "low_ndvi_both": 0.0,
       "other": 0.0
      },
-     "main": "water_to_land",
+     "main": "mndwi_pos_to_neg",
+     "strata": {
+      "water_like_in_summer": {
+       "n": 6,
+       "k": 6,
+       "event": "MNDWI turned negative"
+      },
+      "vegetated_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "NDVI fell below 0.2"
+      },
+      "low_vegetation_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "stayed low in autumn"
+      }
+     },
+     "first_rule_share_changed": 1.0,
      "ndvi_before": -0.15,
-     "ndvi_after": 0.03,
+     "ndvi_after": 0.02,
      "mndwi_before": 0.48,
-     "mndwi_after": -0.55,
+     "mndwi_after": -0.57,
      "clear_obs_summer": 4,
      "clear_obs_autumn": 9
     },
     "11": {
-     "px_with_clear_optics": 6,
+     "cells_total": 6,
+     "cells_with_optics": 6,
      "share": {
-      "water_to_land": 0.0,
-      "veg_to_bare": 0.0,
-      "open_both": 1.0,
+      "mndwi_pos_to_neg": 0.0,
+      "ndvi_high_to_low": 0.0,
+      "low_ndvi_both": 1.0,
       "other": 0.0
      },
-     "main": "open_both",
+     "main": "low_ndvi_both",
+     "strata": {
+      "water_like_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "MNDWI turned negative"
+      },
+      "vegetated_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "NDVI fell below 0.2"
+      },
+      "low_vegetation_in_summer": {
+       "n": 6,
+       "k": 6,
+       "event": "stayed low in autumn"
+      }
+     },
+     "first_rule_share_changed": 0.0,
      "ndvi_before": 0.17,
-     "ndvi_after": 0.13,
-     "mndwi_before": -0.41,
+     "ndvi_after": 0.14,
+     "mndwi_before": -0.4,
      "mndwi_after": -0.35,
      "clear_obs_summer": 7,
      "clear_obs_autumn": 11
     },
     "12": {
-     "px_with_clear_optics": 6,
+     "cells_total": 6,
+     "cells_with_optics": 6,
      "share": {
-      "water_to_land": 0.0,
-      "veg_to_bare": 0.0,
-      "open_both": 0.0,
+      "mndwi_pos_to_neg": 0.0,
+      "ndvi_high_to_low": 0.0,
+      "low_ndvi_both": 0.0,
       "other": 1.0
      },
      "main": "other",
-     "ndvi_before": 0.6,
-     "ndvi_after": 0.26,
-     "mndwi_before": -0.39,
+     "strata": {
+      "water_like_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "MNDWI turned negative"
+      },
+      "vegetated_in_summer": {
+       "n": 6,
+       "k": 0,
+       "event": "NDVI fell below 0.2"
+      },
+      "low_vegetation_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "stayed low in autumn"
+      }
+     },
+     "first_rule_share_changed": 1.0,
+     "ndvi_before": 0.63,
+     "ndvi_after": 0.25,
+     "mndwi_before": -0.41,
      "mndwi_after": -0.45,
-     "clear_obs_summer": 5,
-     "clear_obs_autumn": 12
+     "clear_obs_summer": 4,
+     "clear_obs_autumn": 11
     },
     "13": {
-     "px_with_clear_optics": 5,
+     "cells_total": 5,
+     "cells_with_optics": 5,
      "share": {
-      "water_to_land": 0.0,
-      "veg_to_bare": 0.0,
-      "open_both": 0.0,
-      "other": 1.0
+      "mndwi_pos_to_neg": 0.2,
+      "ndvi_high_to_low": 0.0,
+      "low_ndvi_both": 0.0,
+      "other": 0.8
      },
      "main": "other",
-     "ndvi_before": 0.49,
-     "ndvi_after": 0.38,
-     "mndwi_before": -0.15,
+     "strata": {
+      "water_like_in_summer": {
+       "n": 1,
+       "k": 1,
+       "event": "MNDWI turned negative"
+      },
+      "vegetated_in_summer": {
+       "n": 4,
+       "k": 0,
+       "event": "NDVI fell below 0.2"
+      },
+      "low_vegetation_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "stayed low in autumn"
+      }
+     },
+     "first_rule_share_changed": 1.0,
+     "ndvi_before": 0.57,
+     "ndvi_after": 0.33,
+     "mndwi_before": -0.09,
      "mndwi_after": -0.39,
-     "clear_obs_summer": 5,
+     "clear_obs_summer": 3,
      "clear_obs_autumn": 10
     },
     "14": {
-     "px_with_clear_optics": 5,
+     "cells_total": 5,
+     "cells_with_optics": 5,
      "share": {
-      "water_to_land": 1.0,
-      "veg_to_bare": 0.0,
-      "open_both": 0.0,
+      "mndwi_pos_to_neg": 1.0,
+      "ndvi_high_to_low": 0.0,
+      "low_ndvi_both": 0.0,
       "other": 0.0
      },
-     "main": "water_to_land",
-     "ndvi_before": 0.15,
-     "ndvi_after": 0.4,
-     "mndwi_before": 0.27,
+     "main": "mndwi_pos_to_neg",
+     "strata": {
+      "water_like_in_summer": {
+       "n": 5,
+       "k": 5,
+       "event": "MNDWI turned negative"
+      },
+      "vegetated_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "NDVI fell below 0.2"
+      },
+      "low_vegetation_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "stayed low in autumn"
+      }
+     },
+     "first_rule_share_changed": 1.0,
+     "ndvi_before": 0.11,
+     "ndvi_after": 0.39,
+     "mndwi_before": 0.4,
      "mndwi_after": -0.36,
      "clear_obs_summer": 1,
      "clear_obs_autumn": 7
     },
     "15": {
-     "px_with_clear_optics": 5,
+     "cells_total": 5,
+     "cells_with_optics": 5,
      "share": {
-      "water_to_land": 0.0,
-      "veg_to_bare": 0.0,
-      "open_both": 1.0,
+      "mndwi_pos_to_neg": 0.0,
+      "ndvi_high_to_low": 0.0,
+      "low_ndvi_both": 1.0,
       "other": 0.0
      },
-     "main": "open_both",
+     "main": "low_ndvi_both",
+     "strata": {
+      "water_like_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "MNDWI turned negative"
+      },
+      "vegetated_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "NDVI fell below 0.2"
+      },
+      "low_vegetation_in_summer": {
+       "n": 5,
+       "k": 5,
+       "event": "stayed low in autumn"
+      }
+     },
+     "first_rule_share_changed": 0.0,
      "ndvi_before": 0.09,
      "ndvi_after": 0.07,
      "mndwi_before": -0.27,
-     "mndwi_after": -0.2,
+     "mndwi_after": -0.21,
      "clear_obs_summer": 5,
      "clear_obs_autumn": 9
     },
     "16": {
-     "px_with_clear_optics": 5,
+     "cells_total": 5,
+     "cells_with_optics": 5,
      "share": {
-      "water_to_land": 0.0,
-      "veg_to_bare": 0.8,
-      "open_both": 0.0,
+      "mndwi_pos_to_neg": 0.0,
+      "ndvi_high_to_low": 0.8,
+      "low_ndvi_both": 0.0,
       "other": 0.2
      },
-     "main": "veg_to_bare",
+     "main": "ndvi_high_to_low",
+     "strata": {
+      "water_like_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "MNDWI turned negative"
+      },
+      "vegetated_in_summer": {
+       "n": 5,
+       "k": 4,
+       "event": "NDVI fell below 0.2"
+      },
+      "low_vegetation_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "stayed low in autumn"
+      }
+     },
+     "first_rule_share_changed": 1.0,
      "ndvi_before": 0.55,
      "ndvi_after": 0.14,
-     "mndwi_before": -0.47,
-     "mndwi_after": -0.26,
+     "mndwi_before": -0.48,
+     "mndwi_after": -0.29,
      "clear_obs_summer": 5,
      "clear_obs_autumn": 9
     },
     "17": {
-     "px_with_clear_optics": 4,
+     "cells_total": 4,
+     "cells_with_optics": 4,
      "share": {
-      "water_to_land": 0.25,
-      "veg_to_bare": 0.0,
-      "open_both": 0.0,
+      "mndwi_pos_to_neg": 0.25,
+      "ndvi_high_to_low": 0.0,
+      "low_ndvi_both": 0.0,
       "other": 0.75
      },
      "main": "other",
-     "ndvi_before": 0.3,
-     "ndvi_after": 0.41,
-     "mndwi_before": -0.15,
-     "mndwi_after": -0.37,
+     "strata": {
+      "water_like_in_summer": {
+       "n": 1,
+       "k": 1,
+       "event": "MNDWI turned negative"
+      },
+      "vegetated_in_summer": {
+       "n": 1,
+       "k": 0,
+       "event": "NDVI fell below 0.2"
+      },
+      "low_vegetation_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "stayed low in autumn"
+      }
+     },
+     "first_rule_share_changed": 0.75,
+     "ndvi_before": 0.28,
+     "ndvi_after": 0.4,
+     "mndwi_before": -0.13,
+     "mndwi_after": -0.38,
      "clear_obs_summer": 3,
      "clear_obs_autumn": 8
     },
     "18": {
-     "px_with_clear_optics": 4,
+     "cells_total": 4,
+     "cells_with_optics": 4,
      "share": {
-      "water_to_land": 1.0,
-      "veg_to_bare": 0.0,
-      "open_both": 0.0,
+      "mndwi_pos_to_neg": 1.0,
+      "ndvi_high_to_low": 0.0,
+      "low_ndvi_both": 0.0,
       "other": 0.0
      },
-     "main": "water_to_land",
-     "ndvi_before": 0.14,
-     "ndvi_after": 0.41,
-     "mndwi_before": 0.27,
+     "main": "mndwi_pos_to_neg",
+     "strata": {
+      "water_like_in_summer": {
+       "n": 4,
+       "k": 4,
+       "event": "MNDWI turned negative"
+      },
+      "vegetated_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "NDVI fell below 0.2"
+      },
+      "low_vegetation_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "stayed low in autumn"
+      }
+     },
+     "first_rule_share_changed": 1.0,
+     "ndvi_before": 0.15,
+     "ndvi_after": 0.4,
+     "mndwi_before": 0.29,
      "mndwi_after": -0.39,
      "clear_obs_summer": 2,
      "clear_obs_autumn": 7
     },
     "19": {
-     "px_with_clear_optics": 4,
+     "cells_total": 4,
+     "cells_with_optics": 4,
      "share": {
-      "water_to_land": 0.0,
-      "veg_to_bare": 0.0,
-      "open_both": 0.0,
+      "mndwi_pos_to_neg": 0.0,
+      "ndvi_high_to_low": 0.0,
+      "low_ndvi_both": 0.0,
       "other": 1.0
      },
      "main": "other",
-     "ndvi_before": 0.41,
-     "ndvi_after": 0.36,
+     "strata": {
+      "water_like_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "MNDWI turned negative"
+      },
+      "vegetated_in_summer": {
+       "n": 3,
+       "k": 0,
+       "event": "NDVI fell below 0.2"
+      },
+      "low_vegetation_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "stayed low in autumn"
+      }
+     },
+     "first_rule_share_changed": 0.0,
+     "ndvi_before": 0.42,
+     "ndvi_after": 0.37,
      "mndwi_before": -0.36,
-     "mndwi_after": -0.38,
+     "mndwi_after": -0.39,
      "clear_obs_summer": 5,
      "clear_obs_autumn": 9
     },
     "20": {
-     "px_with_clear_optics": 4,
+     "cells_total": 4,
+     "cells_with_optics": 4,
      "share": {
-      "water_to_land": 0.0,
-      "veg_to_bare": 0.0,
-      "open_both": 0.0,
+      "mndwi_pos_to_neg": 0.0,
+      "ndvi_high_to_low": 0.0,
+      "low_ndvi_both": 0.0,
       "other": 1.0
      },
      "main": "other",
-     "ndvi_before": 0.43,
-     "ndvi_after": 0.42,
-     "mndwi_before": -0.56,
+     "strata": {
+      "water_like_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "MNDWI turned negative"
+      },
+      "vegetated_in_summer": {
+       "n": 4,
+       "k": 0,
+       "event": "NDVI fell below 0.2"
+      },
+      "low_vegetation_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "stayed low in autumn"
+      }
+     },
+     "first_rule_share_changed": 0.0,
+     "ndvi_before": 0.42,
+     "ndvi_after": 0.41,
+     "mndwi_before": -0.55,
      "mndwi_after": -0.6,
      "clear_obs_summer": 6,
      "clear_obs_autumn": 9
     },
     "21": {
-     "px_with_clear_optics": 4,
+     "cells_total": 4,
+     "cells_with_optics": 4,
      "share": {
-      "water_to_land": 0.0,
-      "veg_to_bare": 1.0,
-      "open_both": 0.0,
+      "mndwi_pos_to_neg": 0.0,
+      "ndvi_high_to_low": 1.0,
+      "low_ndvi_both": 0.0,
       "other": 0.0
      },
-     "main": "veg_to_bare",
+     "main": "ndvi_high_to_low",
+     "strata": {
+      "water_like_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "MNDWI turned negative"
+      },
+      "vegetated_in_summer": {
+       "n": 4,
+       "k": 4,
+       "event": "NDVI fell below 0.2"
+      },
+      "low_vegetation_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "stayed low in autumn"
+      }
+     },
+     "first_rule_share_changed": 1.0,
      "ndvi_before": 0.54,
-     "ndvi_after": 0.14,
-     "mndwi_before": -0.47,
-     "mndwi_after": -0.23,
+     "ndvi_after": 0.13,
+     "mndwi_before": -0.48,
+     "mndwi_after": -0.24,
      "clear_obs_summer": 5,
      "clear_obs_autumn": 9
     },
     "22": {
-     "px_with_clear_optics": 4,
+     "cells_total": 4,
+     "cells_with_optics": 4,
      "share": {
-      "water_to_land": 0.0,
-      "veg_to_bare": 0.25,
-      "open_both": 0.0,
+      "mndwi_pos_to_neg": 0.0,
+      "ndvi_high_to_low": 0.25,
+      "low_ndvi_both": 0.0,
       "other": 0.75
      },
      "main": "other",
-     "ndvi_before": 0.43,
+     "strata": {
+      "water_like_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "MNDWI turned negative"
+      },
+      "vegetated_in_summer": {
+       "n": 4,
+       "k": 1,
+       "event": "NDVI fell below 0.2"
+      },
+      "low_vegetation_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "stayed low in autumn"
+      }
+     },
+     "first_rule_share_changed": 0.25,
+     "ndvi_before": 0.44,
      "ndvi_after": 0.29,
-     "mndwi_before": -0.47,
-     "mndwi_after": -0.4,
+     "mndwi_before": -0.49,
+     "mndwi_after": -0.41,
      "clear_obs_summer": 6,
      "clear_obs_autumn": 9
     }
@@ -753,101 +1206,216 @@
      }
     ]
    },
-   "candidates_all_pixels": {
-    "px_with_clear_optics": 25,
+   "candidates": {
+    "cells_total": 34,
+    "cells_with_optics": 11,
     "share": {
-     "water_to_land": 0.0,
-     "veg_to_bare": 0.0,
-     "open_both": 0.92,
-     "other": 0.08
+     "mndwi_pos_to_neg": 0.0,
+     "ndvi_high_to_low": 0.0,
+     "low_ndvi_both": 0.818,
+     "other": 0.182
     },
-    "main": "open_both",
+    "main": "low_ndvi_both",
+    "strata": {
+     "water_like_in_summer": {
+      "n": 0,
+      "k": 0,
+      "event": "MNDWI turned negative"
+     },
+     "vegetated_in_summer": {
+      "n": 0,
+      "k": 0,
+      "event": "NDVI fell below 0.2"
+     },
+     "low_vegetation_in_summer": {
+      "n": 11,
+      "k": 9,
+      "event": "stayed low in autumn"
+     }
+    },
+    "first_rule_share_changed": 0.0,
     "ndvi_before": 0.13,
     "ndvi_after": 0.1,
-    "mndwi_before": -0.3,
+    "mndwi_before": -0.31,
     "mndwi_after": -0.31
    },
-   "control_pixels": {
-    "px_with_clear_optics": 47248,
+   "comparison_all": {
+    "cells_total": 47866,
+    "cells_with_optics": 26245,
     "share": {
-     "water_to_land": 0.113,
-     "veg_to_bare": 0.004,
-     "open_both": 0.033,
-     "other": 0.849
+     "mndwi_pos_to_neg": 0.03,
+     "ndvi_high_to_low": 0.006,
+     "low_ndvi_both": 0.046,
+     "other": 0.918
     },
     "main": "other",
-    "ndvi_before": 0.45,
-    "ndvi_after": 0.35,
-    "mndwi_before": -0.27,
-    "mndwi_after": -0.45
-   },
-   "control_land_pixels": {
-    "px_with_clear_optics": 35975,
-    "share": {
-     "water_to_land": 0.0,
-     "veg_to_bare": 0.006,
-     "open_both": 0.043,
-     "other": 0.951
+    "strata": {
+     "water_like_in_summer": {
+      "n": 5257,
+      "k": 797,
+      "event": "MNDWI turned negative"
+     },
+     "vegetated_in_summer": {
+      "n": 16952,
+      "k": 155,
+      "event": "NDVI fell below 0.2"
+     },
+     "low_vegetation_in_summer": {
+      "n": 1832,
+      "k": 1200,
+      "event": "stayed low in autumn"
+     }
     },
-    "main": "other",
-    "ndvi_before": 0.51,
+    "first_rule_share_changed": 0.387,
+    "ndvi_before": 0.48,
     "ndvi_after": 0.4,
-    "mndwi_before": -0.36,
-    "mndwi_after": -0.47
+    "mndwi_before": -0.41,
+    "mndwi_after": -0.46
+   },
+   "comparison_within_2km": {
+    "cells_total": 4220,
+    "cells_with_optics": 1935,
+    "share": {
+     "mndwi_pos_to_neg": 0.054,
+     "ndvi_high_to_low": 0.002,
+     "low_ndvi_both": 0.316,
+     "other": 0.628
+    },
+    "main": "other",
+    "strata": {
+     "water_like_in_summer": {
+      "n": 298,
+      "k": 105,
+      "event": "MNDWI turned negative"
+     },
+     "vegetated_in_summer": {
+      "n": 907,
+      "k": 3,
+      "event": "NDVI fell below 0.2"
+     },
+     "low_vegetation_in_summer": {
+      "n": 636,
+      "k": 612,
+      "event": "stayed low in autumn"
+     }
+    },
+    "first_rule_share_changed": 0.261,
+    "ndvi_before": 0.32,
+    "ndvi_after": 0.3,
+    "mndwi_before": -0.34,
+    "mndwi_after": -0.39
    },
    "spots": {
     "1": {
-     "px_with_clear_optics": 15,
+     "cells_total": 15,
+     "cells_with_optics": 1,
      "share": {
-      "water_to_land": 0.0,
-      "veg_to_bare": 0.0,
-      "open_both": 1.0,
+      "mndwi_pos_to_neg": 0.0,
+      "ndvi_high_to_low": 0.0,
+      "low_ndvi_both": 1.0,
       "other": 0.0
      },
-     "main": "open_both",
-     "ndvi_before": 0.13,
+     "main": "low_ndvi_both",
+     "strata": {
+      "water_like_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "MNDWI turned negative"
+      },
+      "vegetated_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "NDVI fell below 0.2"
+      },
+      "low_vegetation_in_summer": {
+       "n": 1,
+       "k": 1,
+       "event": "stayed low in autumn"
+      }
+     },
+     "first_rule_share_changed": 0.0,
+     "ndvi_before": 0.09,
      "ndvi_after": 0.1,
-     "mndwi_before": -0.29,
-     "mndwi_after": -0.32,
-     "clear_obs_summer": 3,
-     "clear_obs_autumn": 10
+     "mndwi_before": -0.24,
+     "mndwi_after": -0.34,
+     "clear_obs_summer": 0,
+     "clear_obs_autumn": 7
     },
     "2": {
-     "px_with_clear_optics": 0,
+     "cells_total": 9,
+     "cells_with_optics": 0,
      "clear_obs_summer": 0,
-     "clear_obs_autumn": 11
+     "clear_obs_autumn": 6
     },
     "3": {
-     "px_with_clear_optics": 6,
+     "cells_total": 6,
+     "cells_with_optics": 6,
      "share": {
-      "water_to_land": 0.0,
-      "veg_to_bare": 0.0,
-      "open_both": 1.0,
+      "mndwi_pos_to_neg": 0.0,
+      "ndvi_high_to_low": 0.0,
+      "low_ndvi_both": 1.0,
       "other": 0.0
      },
-     "main": "open_both",
+     "main": "low_ndvi_both",
+     "strata": {
+      "water_like_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "MNDWI turned negative"
+      },
+      "vegetated_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "NDVI fell below 0.2"
+      },
+      "low_vegetation_in_summer": {
+       "n": 6,
+       "k": 6,
+       "event": "stayed low in autumn"
+      }
+     },
+     "first_rule_share_changed": 0.0,
      "ndvi_before": 0.13,
-     "ndvi_after": 0.09,
+     "ndvi_after": 0.1,
      "mndwi_before": -0.3,
-     "mndwi_after": -0.28,
+     "mndwi_after": -0.29,
      "clear_obs_summer": 1,
-     "clear_obs_autumn": 10
+     "clear_obs_autumn": 7
     },
     "4": {
-     "px_with_clear_optics": 4,
+     "cells_total": 4,
+     "cells_with_optics": 4,
      "share": {
-      "water_to_land": 0.0,
-      "veg_to_bare": 0.0,
-      "open_both": 0.5,
+      "mndwi_pos_to_neg": 0.0,
+      "ndvi_high_to_low": 0.0,
+      "low_ndvi_both": 0.5,
       "other": 0.5
      },
-     "main": "open_both",
+     "main": "low_ndvi_both",
+     "strata": {
+      "water_like_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "MNDWI turned negative"
+      },
+      "vegetated_in_summer": {
+       "n": 0,
+       "k": 0,
+       "event": "NDVI fell below 0.2"
+      },
+      "low_vegetation_in_summer": {
+       "n": 4,
+       "k": 2,
+       "event": "stayed low in autumn"
+      }
+     },
+     "first_rule_share_changed": 0.0,
      "ndvi_before": 0.17,
-     "ndvi_after": 0.2,
-     "mndwi_before": -0.4,
-     "mndwi_after": -0.34,
+     "ndvi_after": 0.22,
+     "mndwi_before": -0.39,
+     "mndwi_after": -0.32,
      "clear_obs_summer": 3,
-     "clear_obs_autumn": 9
+     "clear_obs_autumn": 3
     }
    }
   }
