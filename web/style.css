@@ -171,3 +171,4 @@ button{font:inherit;color:inherit;cursor:pointer}
 .leaflet-control-scale-line{background:rgba(18,26,43,.85);color:var(--text);border-color:var(--muted);font:400 10px var(--mono)}
 .legend{font-size:13px}
 .tl-track button span{font-size:10px}
+.leaflet-popup-pane{z-index:950}.map .leaflet-pane.leaflet-popup-pane{z-index:950}
