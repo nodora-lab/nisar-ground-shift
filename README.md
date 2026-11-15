@@ -15,8 +15,8 @@ Both sites sit in the same NISAR scene (descending track 133, frame 70), so 18 r
 What you can do on the site:
 - Step or play through the 18 acquisitions on a time-true timeline. Gaps are marked, and each date is tagged BETA / PROVISIONAL / VALIDATED.
 - Switch between five layers: RGB composite, HH, HV, HH change (vs. Jun 23, 2026, the first PROVISIONAL date), and **persistent HH-brightening candidates**.
-- Open an **evidence card** for each candidate patch: area, coordinates, patch-median HH on all 18 dates, and before/after crops.
-- Compare any two dates with a swipe slider. You get a warning when you mix uncalibrated and calibrated dates.
+- Open an **evidence card** for the largest 12 candidate patches per site: area, coordinates, patch-median HH on all 18 dates, and before/after crops.
+- Compare any two dates with a swipe slider. You get a warning when the two dates come from products of different maturity.
 - Follow a trend chart of median HH / HV for the area. The line breaks at the BETA boundary.
 - Read what each colour can mean for that place, plus the full data & method page with its limits.
 - Download candidates as GeoJSON: `web/data/<site>_candidates.geojson`.
@@ -48,7 +48,7 @@ To add a new place, add its bounding box to `SITES` in scripts 01 and 02, add a 
 5. Change = HH(date) − HH(Jun 23, 2026), shown where |Δ| ≥ 2 dB.
 6. Persistent-brightening candidates:
    - HH ≤ −8 dB on **all** of Jun 23, Jul 5 and Jul 17, 2026, and ≥ −3 dB on **all** of Oct 9, Oct 21 and Nov 2, 2026
-   - patches use 1-px dilation, 8-connectivity and at least 4 pixels
+   - all six observations must exist; patches use 1-px dilation, 8-connectivity and at least 4 pixels; only retained patches are mapped and counted
    - area = pixel count × pixel cell area
    - thresholds were set once and not tuned against construction maps
 7. Consistency check: the three largest Yongin patches fall inside the area OpenStreetMap maps as the Yongin Semiconductor Cluster construction site. This is a single check, not an accuracy assessment.

@@ -34,12 +34,17 @@ RATIO_RANGE = (0.0, 18.0)
 CHG_MIN, CHG_MAX = 2.0, 10.0
 
 
+# product maturity and processing CRID come from the granule list itself, not from the date
+_MAN = {r[0]: (r[1], r[3].split("_")[-5]) for r in json.load(open(ROOT / "data" / "search_result.json"))["saemangeum"]["133/70/DESCENDING"]}
+_TAG = {"BETA": "BETA", "PROVISIONAL": "PROVISIONAL", "VAL": "VALIDATED", "VALIDATED": "VALIDATED"}
+
+
 def collection_of(date):
-    if date < "2026-06-01":
-        return "BETA"
-    if date < "2026-10-21":
-        return "PROVISIONAL"
-    return "VALIDATED"
+    return _TAG[_MAN[date][0]]
+
+
+def crid_of(date):
+    return _MAN[date][1]
 
 
 def load_on_grid(path, bbox):
@@ -93,11 +98,14 @@ def render_one(site, date, ref_date):
     chg = np.zeros(diff.shape + (4,), dtype="uint8")
     chg[..., 0] = np.where(up, 255, 77); chg[..., 1] = np.where(up, 159, 163); chg[..., 2] = np.where(up, 67, 255)
     chg[..., 3] = (np.nan_to_num(mag) * 230).astype("uint8")
+    beta = collection_of(date) == "BETA"
+    if beta:  # uncalibrated vs calibrated differences are not meaningful -> nothing drawn
+        chg[..., 3] = 0
     save_rgba(chg, d / f"{date}_chg.webp")
-    frac_up = float(np.nanmean((diff > CHG_MIN)[valid])) if valid.any() else None
-    frac_dn = float(np.nanmean((diff < -CHG_MIN)[valid])) if valid.any() else None
+    frac_up = None if beta or not valid.any() else float(np.nanmean((diff > CHG_MIN)[valid]))
+    frac_dn = None if beta or not valid.any() else float(np.nanmean((diff < -CHG_MIN)[valid]))
     print(site, date, "ok", flush=True)
-    return {"date": date, "collection": collection_of(date),
+    return {"date": date, "collection": collection_of(date), "crid": crid_of(date),
             "hh_db": float(np.nanmedian(hhdb)), "hv_db": float(np.nanmedian(hvdb)) if np.isfinite(hvdb).any() else None,
             "frac_brighter": frac_up, "frac_darker": frac_dn}
 
@@ -117,7 +125,10 @@ def render_new(site, all_dates):
     cfg = SITES[site]; bb = cfg["bbox"]; d = WEB / site; (d / "spots").mkdir(exist_ok=True)
     hh = {dt: to_db(load_on_grid(SUB / f"{site}_{dt}_HH.tif", bb)) for dt in all_dates}
     E = np.stack([hh[x] for x in NEW_EARLY]); La = np.stack([hh[x] for x in NEW_LATE])
-    new = (np.nanmin(La, 0) >= NEW_LATE_MIN) & (np.nanmax(E, 0) <= NEW_EARLY_MAX)
+    finite = np.isfinite(E).all(0) & np.isfinite(La).all(0)  # all six observations must exist
+    with np.errstate(invalid="ignore"):
+        passed = finite & (La.min(0) >= NEW_LATE_MIN) & (E.max(0) <= NEW_EARLY_MAX)
+    new = passed.copy()
     lab, n = label(binary_dilation(new, iterations=1), structure=np.ones((3, 3)))
     lat0 = (bb[1] + bb[3]) / 2
     dy_m, dx_m = RES * 111320, RES * 111320 * np.cos(np.radians(lat0))
@@ -131,8 +142,14 @@ def render_new(site, all_dates):
         lat = bb[3] - (cy + 0.5) * RES; lon = bb[0] + (cx + 0.5) * RES
         series = [round(float(np.nanmedian(hh[dt][sl][m])), 2) for dt in all_dates]
         spots.append({"lat": round(lat, 5), "lon": round(lon, 5), "px": int(m.sum()),
-                      "ha": round(float(m.sum()) * dx_m * dy_m / 1e4, 2), "series": series, "_c": (cy, cx)})
+                      "ha": round(float(m.sum()) * dx_m * dy_m / 1e4, 2), "series": series, "_c": (cy, cx),
+                      "_mask": (slice(None), slice(None))})
+        mm = np.zeros_like(new); mm[sl] = m; spots[-1]["_mask"] = mm
     spots.sort(key=lambda q: -q["px"])
+    kept = np.zeros_like(new)
+    for q in spots:
+        kept[q.pop("_mask")] = True
+    new = kept  # map and totals show only retained patches
     H, W = new.shape
     for i, q in enumerate(spots, start=1):
         q["id"] = i; cy, cx = q.pop("_c")
@@ -150,7 +167,8 @@ def render_new(site, all_dates):
                         "properties": {"id": q["id"], "pixels": q["px"], "area_ha": q["ha"], "hh_median_db": q["series"]}} for q in spots]}
     json.dump(gj, open(WEB / f"{site}_candidates.geojson", "w"), indent=1)
     print(site, "candidate px", int(new.sum()), "patches", len(spots), flush=True)
-    return {"new_ha": round(float(new.sum()) * dx_m * dy_m / 1e4, 1), "new_spot_count": len(spots), "new_spots": spots[:12],
+    return {"new_ha": round(float(new.sum()) * dx_m * dy_m / 1e4, 1), "new_px_passed": int(passed.sum()), "new_px_kept": int(new.sum()),
+            "new_spot_count": len(spots), "new_spots": spots[:12],
             "new_early": NEW_EARLY, "new_late": NEW_LATE}
 
 

@@ -1,7 +1,7 @@
 // Ground Shift web map. SI note: drafted with SI assistance (Claude) and reviewed by the team.
 (async function () {
   const C = window.CONTENT;
-  const data = await fetch("data/sites.json?v=13").then(r => r.json());
+  const data = await fetch("data/sites.json?v=14").then(r => r.json());
   const state = { site: null, i: 0, layer: "rgb", compare: false, a: 0, split: 0.5, timer: null };
   const $ = id => document.getElementById(id);
   const fmt = d => new Date(d + "T00:00:00Z").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
@@ -101,16 +101,16 @@
       ovBefore = L.imageOverlay(url(state.a, (state.layer === "chg" || state.layer === "new") ? "rgb" : state.layer), b, { pane: "before" }).addTo(map);
       clip();
       $("labA").textContent = `BEFORE · ${fmt(s.dates[state.a].date)} (${s.dates[state.a].collection})`;
-      const mix = (s.dates[state.a].collection === "BETA") !== (s.dates[state.i].collection === "BETA");
+      const mix = s.dates[state.a].collection !== s.dates[state.i].collection;
       $("compareLabels").classList.toggle("warn", mix);
-      if (mix) $("labA").textContent += " ⚠ uncalibrated vs calibrated: brightness differences may be processing";
+      if (mix) $("labA").textContent += " ⚠ different product maturity: differences may come from processing";
       $("labB").textContent = `AFTER · ${fmt(s.dates[state.i].date)} (${s.dates[state.i].collection})`;
     } else {
       map.getPane("after").style.clipPath = "";
     }
     const d = s.dates[state.i];
     $("curDate").textContent = fmt(d.date);
-    $("curTag").textContent = d.collection; $("curTag").style.color = tagColor[d.collection];
+    $("curTag").textContent = d.collection + " · " + d.crid; $("curTag").style.color = tagColor[d.collection]; $("curTag").title = "Maturity of the NISAR source product (and its processing ID). It is not a validation of this site's analysis.";
     document.querySelectorAll("#track button").forEach((el, k) => { el.classList.toggle("on", k === state.i); el.classList.toggle("a", state.compare && k === state.a); });
     drawChart(); drawLegend(); drawSpots();
   }
