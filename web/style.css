@@ -173,3 +173,4 @@ button{font:inherit;color:inherit;cursor:pointer}
 .tl-track button span{font-size:10px}
 .leaflet-popup-pane{z-index:950}.map .leaflet-pane.leaflet-popup-pane{z-index:950}
 .legend.dimmed{opacity:0;pointer-events:none;transition:opacity .2s}
+@media (max-width: 820px){ .leaflet-control-scale{display:none} .tl-track .gaplab{display:none} }
