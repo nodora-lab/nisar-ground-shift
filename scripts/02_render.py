@@ -148,11 +148,13 @@ def render_new(site, all_dates):
     spots.sort(key=lambda q: -q["px"])
     kept = np.zeros_like(new)
     for q in spots:
-        kept[q.pop("_mask")] = True
+        q["_m2"] = q.pop("_mask"); kept[q["_m2"]] = True
     new = kept  # map and totals show only retained patches
     H, W = new.shape
+    ids = np.zeros(new.shape, dtype="int16")
     for i, q in enumerate(spots, start=1):
         q["id"] = i; cy, cx = q.pop("_c")
+        ids[q.pop("_m2")] = i
         if i <= 12:  # evidence crops: first calibrated date vs latest date, same RGB stretch as the map
             ya, yb, xa, xb = max(0, cy - CROP), min(H, cy + CROP), max(0, cx - CROP), min(W, cx + CROP)
             for tag, dt in (("before", NEW_EARLY[0]), ("after", NEW_LATE[-1])):
@@ -166,6 +168,12 @@ def render_new(site, all_dates):
           "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [q["lon"], q["lat"]]},
                         "properties": {"id": q["id"], "pixels": q["px"], "area_ha": q["ha"], "hh_median_db": q["series"]}} for q in spots]}
     json.dump(gj, open(WEB / f"{site}_candidates.geojson", "w"), indent=1)
+    # for the optical cross-check (03_optical_hls.py): patch ids, plus a control set = pixels that were just as dark
+    # in summer (same early rule, six finite dates) but did NOT pass, kept >= 3 px away from any candidate
+    with np.errstate(invalid="ignore"):
+        control = finite & (E.max(0) <= NEW_EARLY_MAX) & ~binary_dilation(passed, iterations=3)
+    (ROOT / "data" / "derived").mkdir(exist_ok=True)
+    np.savez_compressed(ROOT / "data" / "derived" / f"{site}_patches.npz", ids=ids, control=control)
     print(site, "candidate px", int(new.sum()), "patches", len(spots), flush=True)
     return {"new_ha": round(float(new.sum()) * dx_m * dy_m / 1e4, 1), "new_px_passed": int(passed.sum()), "new_px_kept": int(new.sum()),
             "new_spot_count": len(spots), "new_spots": spots[:12],

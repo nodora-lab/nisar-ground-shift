@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<link rel="stylesheet" href="style.css?v=14">
+<link rel="stylesheet" href="style.css?v=15">
 </head>
 <body>
 <section id="intro" class="intro">
@@ -31,7 +31,7 @@
     <nav class="sites" id="siteSwitch" aria-label="Study area"></nav>
     <div class="spacer"></div>
     <div class="seg" id="layerSwitch" role="group" aria-label="Layer">
-      <button data-layer="rgb" class="on">RGB</button><button data-layer="hh">HH</button><button data-layer="hv">HV</button><button data-layer="chg">CHANGE</button><button data-layer="new" title="Persistent HH brightening candidates">PERSISTENT</button>
+      <button data-layer="rgb" class="on">RGB</button><button data-layer="hh">HH</button><button data-layer="hv">HV</button><button data-layer="chg">CHANGE</button><button data-layer="new" title="Persistent HH brightening candidates">PERSISTENT</button><button data-layer="opt" title="NASA HLS optical cross-check (Landsat + Sentinel-2)">OPTICAL</button>
     </div>
     <button class="btn primary sm" id="compareBtn">Compare dates</button>
     <button class="btn ghost sm" id="aboutBtn">Data &amp; method</button>
@@ -70,13 +70,14 @@
     <div class="tl-head">
       <button class="btn primary sm" id="playBtn">▶ Play year</button>
       <b id="curDate"></b><span class="tag" id="curTag"></span><span class="tagnote">source-product maturity</span>
+      <span class="cmp-pick" id="cmpPick" hidden><label>Before <select id="selA" aria-label="Before date"></select></label><label>After <select id="selB" aria-label="After date"></select></label><em id="cmpWarn" hidden>⚠ different product maturity</em></span>
       <span class="spacer"></span>
       <span class="key"><i class="k beta"></i>BETA (uncalibrated)</span>
       <span class="key"><i class="k prov"></i>PROVISIONAL</span>
       <span class="key"><i class="k val"></i>VALIDATED</span>
     </div>
     <div class="tl-track" id="track"></div>
-    <p class="credit">Data: NISAR L2 GCOV (NASA/ISRO) via ASF DAAC · basemap © Esri, © OpenStreetMap contributors · No SI-generated imagery in map views</p>
+    <p class="credit">Data: NISAR L2 GCOV (NASA/ISRO) via ASF DAAC · optical cross-check: NASA HLS v2.0 via LP DAAC · basemap © Esri, © OpenStreetMap contributors · No SI-generated imagery in map views</p>
   </footer>
 </main>
 
@@ -85,7 +86,7 @@
 </section>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script src="content.js?v=14"></script>
-<script src="app.js?v=14"></script>
+<script src="content.js?v=15"></script>
+<script src="app.js?v=15"></script>
 </body>
 </html>

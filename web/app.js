@@ -1,7 +1,17 @@
 // Ground Shift web map. SI note: drafted with SI assistance (Claude) and reviewed by the team.
 (async function () {
   const C = window.CONTENT;
-  const data = await fetch("data/sites.json?v=14").then(r => r.json());
+  const data = await fetch("data/sites.json?v=15").then(r => r.json());
+  const OPT = await fetch("data/optical.json?v=15").then(r => r.json()).catch(() => null);
+  // NASA HLS clear-sky composites are matched to radar dates by season; other dates show no optical layer
+  const optSeason = d => (d >= "2026-06-01" && d <= "2026-08-15") ? "summer" : (d >= "2026-09-15" && d <= "2026-11-15") ? "autumn" : null;
+  const pct = x => Math.round(x * 100);
+  const OPTCLS = {
+    water_to_land: { label: "water → not water", cls: "yes", note: "Open water or a wet surface in summer no longer looked like water by autumn: land fill, new structures on the water, or a drained rice paddy." },
+    veg_to_bare: { label: "vegetation → bare", cls: "yes", note: "Green cover in summer was gone by autumn: clearing, or a harvest." },
+    open_both: { label: "already open ground in June", cls: "amb", note: "Ambiguous by the index rule: the ground was already bare before our radar window, so vegetation and water indices cannot show what changed. Compare the two crops: new structures may be visible, but fill or soil changes are also possible." },
+    other: { label: "no clear change", cls: "no", note: "HLS shows no clear water or vegetation change. The radar signal may come from something optics cannot see, or be a false positive." }
+  };
   const state = { site: null, i: 0, layer: "rgb", compare: false, a: 0, split: 0.5, timer: null };
   const $ = id => document.getElementById(id);
   const fmt = d => new Date(d + "T00:00:00Z").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
@@ -27,7 +37,7 @@
   const map = L.map("map", { zoomControl: false, attributionControl: true, minZoom: 8, maxZoom: 16, zoomSnap: 0.25 });
   L.control.zoom({ position: "bottomright" }).addTo(map);
   L.control.scale({ position: "bottomright", imperial: false, maxWidth: 140 }).addTo(map);
-  map.on("popupopen", () => $("legend").classList.add("dimmed")); map.on("popupclose", () => $("legend").classList.remove("dimmed"));
+  map.on("popupopen", () => { $("legend").classList.add("dimmed"); if (window.innerWidth <= 820 && !$("panel").classList.contains("collapsed")) { $("panel").classList.add("collapsed"); $("panelToggle").textContent = "+"; } }); map.on("popupclose", () => $("legend").classList.remove("dimmed"));
   L.tileLayer("https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}", { maxZoom: 16, attribution: "Basemap © Esri, HERE, Garmin, © OpenStreetMap contributors" }).addTo(map);
   map.createPane("before"); map.getPane("before").style.zIndex = 410;
   map.createPane("after"); map.getPane("after").style.zIndex = 420;
@@ -36,7 +46,11 @@
   let ovAfter = null, ovBefore = null;
 
   const S = () => data.sites.find(s => s.id === state.site);
-  const url = (i, layer) => layer === "new" ? `data/${state.site}/new.webp` : `data/${state.site}/${S().dates[i].date}_${layer}.webp`;
+  const url = (i, layer) => {
+    if (layer === "new") return `data/${state.site}/new.webp`;
+    if (layer === "opt") { const se = optSeason(S().dates[i].date); return se ? `data/${state.site}/hls_${se}.webp` : "data/none.webp"; }
+    return `data/${state.site}/${S().dates[i].date}_${layer}.webp`;
+  };
   let spots = null, spotMarkers = [];
   function spark(p, s) {
     // evidence sparkline: patch-median HH on every date; BETA shaded, summer/autumn test windows marked
@@ -55,10 +69,17 @@
     return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${g}</svg>`;
   }
   function evidence(p, s) {
-    const crops = p.crop ? `<div class="ev-crops"><figure><img src="data/${s.id}/spots/${p.id}_before.webp" alt="RGB on ${s.new_early[0]}"><figcaption>${fmt(s.new_early[0])}</figcaption></figure><figure><img src="data/${s.id}/spots/${p.id}_after.webp" alt="RGB on ${s.new_late[2]}"><figcaption>${fmt(s.new_late[2])}</figcaption></figure></div>` : "";
+    const crops = p.crop ? `<p class="ev-k">NISAR RADAR (RGB)</p><div class="ev-crops"><figure><img src="data/${s.id}/spots/${p.id}_before.webp" alt="Radar RGB on ${s.new_early[0]}"><figcaption>${fmt(s.new_early[0])}</figcaption></figure><figure><img src="data/${s.id}/spots/${p.id}_after.webp" alt="Radar RGB on ${s.new_late[2]}"><figcaption>${fmt(s.new_late[2])}</figcaption></figure></div>` : "";
+    const o = OPT && OPT.sites[s.id] && OPT.sites[s.id].spots[String(p.id)];
+    let opt = "";
+    if (o && p.crop) opt += `<p class="ev-k">NASA HLS OPTICAL (LANDSAT + SENTINEL-2) · CLEAR-SKY MEDIAN</p><div class="ev-crops"><figure><img src="data/${s.id}/spots/${p.id}_hls_before.webp" alt="HLS true colour, June to July 2026"><figcaption>Jun–Jul 2026</figcaption></figure><figure><img src="data/${s.id}/spots/${p.id}_hls_after.webp" alt="HLS true colour, October to early November 2026"><figcaption>Oct–Nov 10, 2026</figcaption></figure></div>`;
+    if (o && o.px_with_clear_optics) {
+      const k = OPTCLS[o.main];
+      opt += `<p class="ev-n ev-opt ${k.cls}"><b>Optics: ${k.label}</b> · ${pct(o.share[o.main])}% of the patch's clear pixels<br>${k.note}<br><span>NDVI ${o.ndvi_before} → ${o.ndvi_after} · MNDWI ${o.mndwi_before} → ${o.mndwi_after} · ${o.px_with_clear_optics} clear px</span></p>`;
+    } else if (OPT) opt += `<p class="ev-n ev-opt no"><b>Optics: no cloud-free summer pixel here.</b> This patch cannot be cross-checked.</p>`;
     return `<div class="ev"><p class="ev-k">CANDIDATE #${p.id} · ${p.ha} ha · ${p.lat.toFixed(4)}°N ${p.lon.toFixed(4)}°E</p>
-      ${crops}<p class="ev-k">PATCH-MEDIAN HH, ALL 18 DATES (TEAL = TEST WINDOWS)</p>${spark(p, s)}
-      <p class="ev-n">Radar brightening that persisted. It may be construction, but this needs an independent check.</p>
+      ${crops}<p class="ev-k">PATCH-MEDIAN HH, ALL 18 DATES (TEAL = TEST WINDOWS)</p>${spark(p, s)}${opt}
+      <p class="ev-n">Radar brightening that persisted. Optical agreement supports, but does not prove, a land-surface change such as construction.</p>
       <a href="https://www.openstreetmap.org/?mlat=${p.lat}&mlon=${p.lon}#map=16/${p.lat}/${p.lon}" target="_blank" rel="noopener">Check on OpenStreetMap ↗</a></div>`;
   }
   function drawSpots() {
@@ -67,7 +88,7 @@
     const s = S(); spots = L.layerGroup().addTo(map);
     (s.new_spots || []).forEach(p => {
       const m = L.circleMarker([p.lat, p.lon], { radius: 9 + Math.min(10, p.ha * 2), color: "#FF9F43", weight: 2, fillOpacity: 0.08 })
-        .bindPopup(() => evidence(p, s), { maxWidth: 320, className: "ev-pop", autoPanPaddingTopLeft: L.point(window.innerWidth > 820 ? 410 : 10, 80), autoPanPaddingBottomRight: L.point(window.innerWidth > 820 ? 300 : 10, 170) }).addTo(spots);
+        .bindPopup(() => evidence(p, s), { maxWidth: 320, maxHeight: Math.round(window.innerWidth > 820 ? window.innerHeight * 0.7 : window.innerHeight - 360), className: "ev-pop", autoPanPaddingTopLeft: L.point(window.innerWidth > 820 ? 410 : 10, window.innerWidth > 820 ? 80 : 185), autoPanPaddingBottomRight: L.point(window.innerWidth > 820 ? 300 : 10, window.innerWidth > 820 ? 170 : 160) }).addTo(spots);
       spotMarkers.push(m);
     });
   }
@@ -100,14 +121,17 @@
       if (ovBefore) map.removeLayer(ovBefore);
       ovBefore = L.imageOverlay(url(state.a, (state.layer === "chg" || state.layer === "new") ? "rgb" : state.layer), b, { pane: "before" }).addTo(map);
       clip();
-      $("labA").textContent = `BEFORE · ${fmt(s.dates[state.a].date)} (${s.dates[state.a].collection})`;
-      const mix = s.dates[state.a].collection !== s.dates[state.i].collection;
+      const opt = state.layer === "opt", lab = k => opt ? (optSeason(s.dates[k].date) ? `HLS ${optSeason(s.dates[k].date) === "summer" ? "Jun–Jul" : "Oct–Nov"} 2026` : "no optical composite") : s.dates[k].collection;
+      $("labA").textContent = `BEFORE · ${fmt(s.dates[state.a].date)} (${lab(state.a)})`;
+      const mix = !opt && s.dates[state.a].collection !== s.dates[state.i].collection;
       $("compareLabels").classList.toggle("warn", mix);
       if (mix) $("labA").textContent += " ⚠ different product maturity: differences may come from processing";
-      $("labB").textContent = `AFTER · ${fmt(s.dates[state.i].date)} (${s.dates[state.i].collection})`;
+      $("labB").textContent = `AFTER · ${fmt(s.dates[state.i].date)} (${lab(state.i)})`;
+      $("selA").value = state.a; $("selB").value = state.i; $("cmpWarn").hidden = !mix;
     } else {
       map.getPane("after").style.clipPath = "";
     }
+    $("cmpPick").hidden = !state.compare;
     const d = s.dates[state.i];
     $("curDate").textContent = fmt(d.date);
     $("curTag").textContent = d.collection + " · " + d.crid; $("curTag").style.color = tagColor[d.collection]; $("curTag").title = "Maturity of the NISAR source product (and its processing ID). It is not a validation of this site's analysis.";
@@ -139,6 +163,8 @@
       html += `<button style="left:${pct(d.date)}%" data-k="${k}" aria-label="${fmt(d.date)} ${d.collection}"><i style="background:${tagColor[d.collection]}"></i><span>${fmt(d.date).replace(/, \d{4}/, "")}</span></button>`;
     });
     $("track").innerHTML = html;
+    const opts = s.dates.map((d, k) => `<option value="${k}">${fmt(d.date)} · ${d.collection}</option>`).join("");
+    $("selA").innerHTML = opts; $("selB").innerHTML = opts;
     $("track").querySelectorAll("button").forEach(b => b.onclick = () => {
       const k = +b.dataset.k;
       if (state.compare && window.event && window.event.shiftKey) state.a = k; else state.i = k;
@@ -179,7 +205,13 @@
     $("siteKicker").textContent = c.kicker; $("siteTitle").textContent = c.title; $("siteMeta").textContent = c.meta;
     $("siteSignals").innerHTML = c.signals.map(([col, a, b]) => `<li><i style="background:${col}"></i><div><b>${a}</b><span>${b}</span></div></li>`).join("");
     $("siteWhy").textContent = c.why;
-    $("siteFinding").innerHTML = (c.finding || "").replace("{ha}", s.new_ha).replace("{n}", s.new_spot_count) + " <u>Show on map →</u>";
+    let fopt = "";
+    const os_ = OPT && OPT.sites[id];
+    if (os_ && c.optFinding && os_.candidates_all_pixels.share) {
+      const sh = x => x.share, cs = sh(os_.candidates_all_pixels), ks = sh(os_.control_pixels);
+      fopt = `<span class="fopt">${c.optFinding.replace("{chg}", pct(cs.water_to_land + cs.veg_to_bare)).replace("{chgc}", pct(ks.water_to_land + ks.veg_to_bare)).replace("{open}", pct(cs.open_both)).replace("{openc}", pct(ks.open_both))}</span>`;
+    }
+    $("siteFinding").innerHTML = (c.finding || "").replace("{ha}", s.new_ha).replace("{n}", s.new_spot_count) + fopt + " <u>Show on map →</u>";
     $("siteFinding").onclick = () => { const b = document.querySelector('#layerSwitch [data-layer="new"]'); b && b.click(); setTimeout(() => spotMarkers[0] && spotMarkers[0].openPopup(), 300); };
     $("siteFacts").innerHTML = (c.facts || []).map(([t, u, src]) => `<li>${t} <a href="${u}" target="_blank" rel="noopener">${src}</a></li>`).join("");
     map.fitBounds(s.bounds, { paddingTopLeft: [window.innerWidth > 820 ? 410 : 0, 72], paddingBottomRight: [window.innerWidth > 820 ? 20 : 0, window.innerWidth > 820 ? 150 : 260] });
@@ -197,6 +229,8 @@
     if (state.compare) { const b = S().bounds, c = map.latLngToContainerPoint([(b[0][0] + b[1][0]) / 2, (b[0][1] + b[1][1]) / 2]); state.split = Math.min(0.9, Math.max(0.1, c.x / map.getSize().x)); } $("split").hidden = $("compareLabels").hidden = !state.compare;
     $("compareBtn").textContent = state.compare ? "Exit compare" : "Compare dates"; draw();
   };
+  $("selA").onchange = e => { state.a = +e.target.value; stop(); draw(); };
+  $("selB").onchange = e => { state.i = +e.target.value; stop(); draw(); };
   const knob = $("split").querySelector(".split-knob");
   knob.addEventListener("pointerdown", e => {
     knob.setPointerCapture(e.pointerId); map.dragging.disable();

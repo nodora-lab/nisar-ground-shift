@@ -10,6 +10,7 @@ window.CONTENT = {
       short: "Tidal flats → reclaimed land, roads and ports",
       kicker: "STUDY AREA 1 OF 2",
       finding: "Radar finding: {ha} ha in {n} patches passed our persistent-brightening test between summer and autumn 2026, across the reclaimed area and its edges in Gunsan and Buan. These are candidates, not measured construction footprints.",
+      optFinding: "Optical check (NASA HLS): {chg}% of candidate pixels went from water to not-water or from vegetation to bare between summer and autumn, against {chgc}% of control pixels that were just as dark on radar in summer.",
       title: "Saemangeum: a tidal flat becoming land",
       meta: "West coast of Korea · 35.8°N, 126.6°E · NISAR descending track 133, frame 70",
       signals: [
@@ -30,6 +31,7 @@ window.CONTENT = {
       short: "Farmland and hills → semiconductor clusters",
       kicker: "STUDY AREA 2 OF 2",
       finding: "Radar finding: our test uses only radar thresholds, with no construction boundaries as input. Its three largest patches fall inside the area that OpenStreetMap maps as the Yongin Semiconductor Cluster construction site in Wonsam-myeon. This is a consistency check, not an accuracy measurement.",
+      optFinding: "Optical check (NASA HLS): {open}% of candidate pixels were already open, bare ground in June, as on an active earthworks site, against {openc}% of control pixels.",
       title: "Yongin: farmland making way for chip factories",
       meta: "South of Seoul · 37.1°N, 127.3°E · same NISAR track and dates",
       signals: [
@@ -51,16 +53,18 @@ window.CONTENT = {
     hh: { title: "HH BACKSCATTER", items: [["linear-gradient(90deg,#000,#fff)", "−24 dB → +2 dB"]] },
     hv: { title: "HV BACKSCATTER", items: [["linear-gradient(90deg,#000,#fff)", "−30 dB → −6 dB"]] },
     new: { title: "PERSISTENT HH BRIGHTENING · CANDIDATES", items: [["#FF9F43", "HH ≤ −8 dB on all 3 summer dates (Jun 23, Jul 5, Jul 17) and ≥ −3 dB on all 3 autumn dates (Oct 9, Oct 21, Nov 2). {ha} ha in {n} patches. Evidence cards for the largest 12; all patches downloadable (see Data &amp; method)."], ["transparent", "Requiring all six dates reduces short-lived effects. Seasonal and processing effects can still pass, and false-positive rates have not been measured."]] },
+    opt: { title: "NASA HLS OPTICAL · TRUE COLOUR (INDEPENDENT CHECK)", items: [["transparent", "Clear-sky median of Landsat 8/9 + Sentinel-2 (HLS v2.0) pixels. Radar dates from Jun 23 to Jul 29 show the Jun 1 – Jul 31, 2026 composite; Sep 15 – Nov 2 dates show the Oct 1 – Nov 10, 2026 composite. Other dates: none."], ["transparent", "Use Compare (Jun 23 vs. Nov 2) to swipe summer against autumn optics, then switch to PERSISTENT."]] },
     chg: { title: "HH CHANGE VS. JUN 23, 2026 (FIRST PROVISIONAL DATE)", items: [["#FF9F43", "Brighter by ≥ 2 dB"], ["#4DA3FF", "Darker by ≥ 2 dB"], ["transparent", "Includes crop-season effects. Not drawn for BETA dates: uncalibrated vs. calibrated differences are not meaningful."]] }
   },
   method: `<h2>Data &amp; method</h2>
-<p>All radar overlays on this site are computed from free NISAR data. The basemap is provided by Esri. No SI-generated imagery is used in the map views.</p>
+<p>All radar overlays on this site are computed from free NISAR data, and the optical layer from free NASA HLS data. The basemap is provided by Esri. No SI-generated imagery is used in the map views.</p>
 <h3>Data</h3>
 <table>
 <tr><th>Product</th><td>NISAR Level-2 GCOV (Geocoded Polarimetric Covariance), L-band, frequency A, HH and HV terms, 10 m posting in UTM zone 52N</td></tr>
 <tr><th>Archive</th><td><a href="https://search.asf.alaska.edu/" target="_blank" rel="noopener">NASA Alaska Satellite Facility DAAC</a>, collections NISAR_L2_GCOV_BETA_V1 (7 dates), NISAR_L2_GCOV_PROVISIONAL_V1 (10 dates, Jun 23 – Oct 21), NISAR_L2_GCOV_V1 (1 date, Nov 2). Each date's maturity tag and processing ID (CRID) are read from the granule itself. The full list of files is in <a href="https://github.com/nodora-lab/nisar-ground-shift/blob/main/data/search_result.json" target="_blank" rel="noopener">data/search_result.json</a>.</td></tr>
 <tr><th>Geometry</th><td>Descending track 133, frame 70. One radar frame covers both study areas.</td></tr>
 <tr><th>Dates</th><td>The 18 acquisitions we found for this track and frame, Oct 26, 2025 – Nov 2, 2026</td></tr>
+<tr><th>Optical check</th><td>NASA Harmonized Landsat and Sentinel-2 (HLS v2.0: HLSL30 and HLSS30), 30 m, <a href="https://www.earthdata.nasa.gov/data/projects/hls" target="_blank" rel="noopener">LP DAAC</a>. Read over HTTPS with Earthdata Login, only the window over each study area.</td></tr>
 <tr><th>Basemap</th><td>Esri World Dark Gray Canvas (© Esri, HERE, Garmin, © OpenStreetMap contributors), labels and background only</td></tr>
 </table>
 <h3>Processing</h3>
@@ -72,6 +76,7 @@ window.CONTENT = {
 <li><b>Change layer.</b> HH on each date minus HH on Jun 23, 2026 (the first PROVISIONAL date). Only differences of 2 dB or more are coloured, and the colour gets stronger up to 10 dB. BETA dates are not drawn.</li>
 <li><b>Persistent-brightening candidates.</b> A pixel is a candidate when its HH is ≤ −8 dB on <i>all</i> of Jun 23, Jul 5 and Jul 17, 2026, and ≥ −3 dB on <i>all</i> of Oct 9, Oct 21 and Nov 2, 2026. Only calibrated (PROVISIONAL or VALIDATED) dates are used. All six observations must exist for a pixel to be tested. Candidates are grouped into patches: one-pixel dilation, 8-connectivity, and at least 4 original pixels per patch. Only retained patches are mapped and counted. Area = number of retained pixels × the size of a pixel cell at the site's latitude. The largest 12 patches per site have evidence cards: the median HH of the patch on all 18 dates, and before/after image crops. The patches can be downloaded as GeoJSON (<a href="data/saemangeum_candidates.geojson">Saemangeum</a>, <a href="data/yongin_candidates.geojson">Yongin</a>). The thresholds were chosen once, by looking at typical HH levels. They were not tuned against construction maps.</li>
 <li><b>Consistency check.</b> We looked up each Yongin patch on OpenStreetMap. The three largest fall inside the area mapped as the Yongin Semiconductor Cluster construction site. This is a single check, not an accuracy assessment.</li>
+<li><b>Independent optical cross-check (NASA HLS).</b> Radar alone cannot say what changed, so we compare the candidates with a second, independent NASA dataset: Harmonized Landsat and Sentinel-2 (HLS v2.0, HLSL30 + HLSS30, LP DAAC). For each site we build two clear-sky median composites on the same grid: summer (Jun 1 – Jul 31, 2026) and autumn (Oct 1 – Nov 10, 2026). Only pixels that HLS Fmask marks free of cloud, cloud shadow, adjacent cloud and snow are used (<code>scripts/03_optical_hls.py</code>). Each pixel is put into one optical class using NDVI (vegetation) and MNDWI (open water). We then compare candidate pixels with a <i>control set</i>: pixels that were just as dark on all three summer radar dates but did not pass the autumn test, kept at least 3 pixels away from any candidate. <b>Results.</b> Saemangeum: 51% of candidate pixels went from water to not-water (24%) or from vegetation to bare (26%), against 2% of control pixels. Yongin: 92% of candidate pixels were already open ground in June, against 3% of control pixels; vegetation and water indices cannot show what changed on such ground, so we mark these as ambiguous and show the crops. These are shares of pixels, not accuracy figures: the control set is matched only on summer radar darkness, and "water to not-water" also includes rice paddies that are flooded in June and drained for harvest (11% of Yongin control pixels fall in this class). Yongin had only 3 usable summer scenes because of the monsoon; one of its four patches has no cloud-free summer pixel. <b>A note on honesty:</b> our first optical rule (NDVI or MNDWI change of at least 0.20) also fired on seasonal harvest in 55–66% of control pixels, so it could not separate candidates from the background. We replaced it with the four classes above (water to not-water: MNDWI above 0 in summer and below 0 in autumn; vegetation to bare: NDVI at least 0.3 in summer and below 0.2 in autumn; open ground in both: NDVI below 0.2 and MNDWI below 0 in both; other) and report both runs here. The scene list is in <a href="data/optical.json">data/optical.json</a>.</li>
 <li><b>Trend chart.</b> Median HH and HV (dB) over the whole study area on each date. The line breaks between BETA and later dates because their calibration differs.</li>
 </ol>
 <h3>Limits — please read before drawing conclusions</h3>
@@ -79,6 +84,7 @@ window.CONTENT = {
 <li><b>BETA dates are not calibrated.</b> Oct 2025 – Jan 2026 data was released as BETA. Absolute levels can be off, and ASF warns that mixing products of different maturity can show differences caused only by processing changes. Compare BETA dates with each other, not with later dates (<a href="https://hyp3-docs.asf.alaska.edu/nisar-docs/availability-overview/" target="_blank" rel="noopener">ASF data availability</a>). "VALIDATED" describes the maturity of the NISAR product. It does not mean our change test has been validated.</li>
 <li><b>Gaps.</b> Our set has no acquisitions between Jan 18 and Jun 23, 2026, and NISAR has an instrument data gap from Jul 27 to Aug 10, 2026.</li>
 <li><b>Radar brightness is not land use.</b> Wind on water, rain, soil moisture, crop growth and viewing geometry also change backscatter. A coloured pixel indicates a measured backscatter difference, which may come from surface conditions, noise or processing. Seasonal farm changes are common in both areas.</li>
+<li><b>The optical check is supporting evidence, not ground truth.</b> HLS pixels are 30 m, summer composites in Korea are limited by monsoon clouds, and optical indices cannot see structures built on ground that was already bare.</li>
 <li><b>Candidates are not footprints.</b> Hectare figures count pixels that passed the test. They are not measured building or construction areas, and false-positive and missed-detection rates have not been measured.</li>
 <li>Faint stripes over the sea at Saemangeum are radar artefacts, not real features.</li>
 </ul>

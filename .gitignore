@@ -5,3 +5,4 @@ __pycache__/
 *.netrc
 _netrc
 data/subsets/
+data/derived/*_hls.npz

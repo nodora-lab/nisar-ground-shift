@@ -1,0 +1,855 @@
+{
+ "classes": "Per-pixel optical class between the summer (a) and autumn (b) composites.\nwater_to_land: MNDWI > 0 in summer and < 0 in autumn (open water or wet flat became dry ground)\nveg_to_bare:   NDVI >= 0.3 in summer and < 0.2 in autumn, not water in autumn (vegetation removed or harvested)\nopen_both:     NDVI < 0.2 and MNDWI < 0 in both (ground that was already open/bare in summer; optics cannot\n               see whether something was built on it)\nother:         everything else (no clear change, greening, water that stayed water ...)",
+ "windows": {
+  "summer": [
+   "2026-06-01",
+   "2026-07-31"
+  ],
+  "autumn": [
+   "2026-10-01",
+   "2026-11-10"
+  ]
+ },
+ "product": "HLS v2.0 (HLSL30 + HLSS30), LP DAAC",
+ "sites": {
+  "saemangeum": {
+   "granules": {
+    "summer": [
+     {
+      "date": "2026-06-05",
+      "sensor": "HLSS30",
+      "id": "HLS.S30.T52SBE.2026156T021531.v2.0"
+     },
+     {
+      "date": "2026-06-07",
+      "sensor": "HLSS30",
+      "id": "HLS.S30.T52SBE.2026158T022131.v2.0"
+     },
+     {
+      "date": "2026-06-09",
+      "sensor": "HLSL30",
+      "id": "HLS.L30.T52SBE.2026160T020421.v2.0"
+     },
+     {
+      "date": "2026-06-10",
+      "sensor": "HLSS30",
+      "id": "HLS.S30.T52SBE.2026161T021529.v2.0"
+     },
+     {
+      "date": "2026-06-15",
+      "sensor": "HLSS30",
+      "id": "HLS.S30.T51SYV.2026166T021531.v2.0"
+     },
+     {
+      "date": "2026-06-15",
+      "sensor": "HLSS30",
+      "id": "HLS.S30.T52SBE.2026166T021531.v2.0"
+     },
+     {
+      "date": "2026-06-15",
+      "sensor": "HLSS30",
+      "id": "HLS.S30.T52SCE.2026166T021531.v2.0"
+     },
+     {
+      "date": "2026-06-16",
+      "sensor": "HLSL30",
+      "id": "HLS.L30.T51SYV.2026167T021038.v2.0"
+     },
+     {
+      "date": "2026-06-16",
+      "sensor": "HLSL30",
+      "id": "HLS.L30.T52SBE.2026167T021038.v2.0"
+     },
+     {
+      "date": "2026-06-16",
+      "sensor": "HLSL30",
+      "id": "HLS.L30.T52SCE.2026167T021038.v2.0"
+     },
+     {
+      "date": "2026-06-27",
+      "sensor": "HLSS30",
+      "id": "HLS.S30.T51SYV.2026178T022131.v2.0"
+     },
+     {
+      "date": "2026-06-27",
+      "sensor": "HLSS30",
+      "id": "HLS.S30.T52SBE.2026178T022131.v2.0"
+     },
+     {
+      "date": "2026-06-27",
+      "sensor": "HLSS30",
+      "id": "HLS.S30.T52SCE.2026178T022131.v2.0"
+     },
+     {
+      "date": "2026-06-30",
+      "sensor": "HLSS30",
+      "id": "HLS.S30.T51SYV.2026181T021529.v2.0"
+     },
+     {
+      "date": "2026-06-30",
+      "sensor": "HLSS30",
+      "id": "HLS.S30.T52SBE.2026181T021529.v2.0"
+     },
+     {
+      "date": "2026-06-30",
+      "sensor": "HLSS30",
+      "id": "HLS.S30.T52SCE.2026181T021529.v2.0"
+     },
+     {
+      "date": "2026-07-11",
+      "sensor": "HLSL30",
+      "id": "HLS.L30.T52SBE.2026192T020441.v2.0"
+     },
+     {
+      "date": "2026-07-11",
+      "sensor": "HLSL30",
+      "id": "HLS.L30.T52SCE.2026192T020441.v2.0"
+     },
+     {
+      "date": "2026-07-25",
+      "sensor": "HLSS30",
+      "id": "HLS.S30.T52SBE.2026206T021531.v2.0"
+     },
+     {
+      "date": "2026-07-26",
+      "sensor": "HLSL30",
+      "id": "HLS.L30.T51SYV.2026207T021111.v2.0"
+     },
+     {
+      "date": "2026-07-26",
+      "sensor": "HLSL30",
+      "id": "HLS.L30.T52SBE.2026207T021111.v2.0"
+     },
+     {
+      "date": "2026-07-30",
+      "sensor": "HLSS30",
+      "id": "HLS.S30.T52SBE.2026211T021529.v2.0"
+     }
+    ],
+    "autumn": [
+     {
+      "date": "2026-10-06",
+      "sensor": "HLSL30",
+      "id": "HLS.L30.T51SYV.2026279T021129.v2.0"
+     },
+     {
+      "date": "2026-10-06",
+      "sensor": "HLSL30",
+      "id": "HLS.L30.T52SBE.2026279T021129.v2.0"
+     },
+     {
+      "date": "2026-10-06",
+      "sensor": "HLSL30",
+      "id": "HLS.L30.T52SCE.2026279T021129.v2.0"
+     },
+     {
+      "date": "2026-10-07",
+      "sensor": "HLSL30",
+      "id": "HLS.L30.T52SBE.2026280T020523.v2.0"
+     },
+     {
+      "date": "2026-10-07",
+      "sensor": "HLSL30",
+      "id": "HLS.L30.T52SCE.2026280T020523.v2.0"
+     },
+     {
+      "date": "2026-10-08",
+      "sensor": "HLSS30",
+      "id": "HLS.S30.T51SYV.2026281T021559.v2.0"
+     },
+     {
+      "date": "2026-10-08",
+      "sensor": "HLSS30",
+      "id": "HLS.S30.T52SBE.2026281T021559.v2.0"
+     },
+     {
+      "date": "2026-10-08",
+      "sensor": "HLSS30",
+      "id": "HLS.S30.T52SCE.2026281T021559.v2.0"
+     },
+     {
+      "date": "2026-10-14",
+      "sensor": "HLSL30",
+      "id": "HLS.L30.T51SYV.2026287T021135.v2.0"
+     },
+     {
+      "date": "2026-10-14",
+      "sensor": "HLSL30",
+      "id": "HLS.L30.T52SBE.2026287T021135.v2.0"
+     },
+     {
+      "date": "2026-10-14",
+      "sensor": "HLSL30",
+      "id": "HLS.L30.T52SCE.2026287T021135.v2.0"
+     },
+     {
+      "date": "2026-10-15",
+      "sensor": "HLSL30",
+      "id": "HLS.L30.T52SBE.2026288T020518.v2.0"
+     },
+     {
+      "date": "2026-10-15",
+      "sensor": "HLSL30",
+      "id": "HLS.L30.T52SCE.2026288T020518.v2.0"
+     },
+     {
+      "date": "2026-10-15",
+      "sensor": "HLSS30",
+      "id": "HLS.S30.T52SBE.2026288T022131.v2.0"
+     },
+     {
+      "date": "2026-10-15",
+      "sensor": "HLSS30",
+      "id": "HLS.S30.T52SCE.2026288T022131.v2.0"
+     },
+     {
+      "date": "2026-10-22",
+      "sensor": "HLSL30",
+      "id": "HLS.L30.T51SYV.2026295T021127.v2.0"
+     },
+     {
+      "date": "2026-10-22",
+      "sensor": "HLSL30",
+      "id": "HLS.L30.T52SBE.2026295T021127.v2.0"
+     },
+     {
+      "date": "2026-10-22",
+      "sensor": "HLSL30",
+      "id": "HLS.L30.T52SCE.2026295T021127.v2.0"
+     },
+     {
+      "date": "2026-10-23",
+      "sensor": "HLSL30",
+      "id": "HLS.L30.T52SBE.2026296T020522.v2.0"
+     },
+     {
+      "date": "2026-10-23",
+      "sensor": "HLSL30",
+      "id": "HLS.L30.T52SCE.2026296T020522.v2.0"
+     },
+     {
+      "date": "2026-10-23",
+      "sensor": "HLSS30",
+      "id": "HLS.S30.T51SYV.2026296T021731.v2.0"
+     },
+     {
+      "date": "2026-10-23",
+      "sensor": "HLSS30",
+      "id": "HLS.S30.T52SBE.2026296T021731.v2.0"
+     },
+     {
+      "date": "2026-10-23",
+      "sensor": "HLSS30",
+      "id": "HLS.S30.T52SCE.2026296T021731.v2.0"
+     },
+     {
+      "date": "2026-10-28",
+      "sensor": "HLSS30",
+      "id": "HLS.S30.T51SYV.2026301T021809.v2.0"
+     },
+     {
+      "date": "2026-10-28",
+      "sensor": "HLSS30",
+      "id": "HLS.S30.T52SBE.2026301T021809.v2.0"
+     },
+     {
+      "date": "2026-10-28",
+      "sensor": "HLSS30",
+      "id": "HLS.S30.T52SCE.2026301T021809.v2.0"
+     },
+     {
+      "date": "2026-10-30",
+      "sensor": "HLSL30",
+      "id": "HLS.L30.T52SBE.2026303T021131.v2.0"
+     },
+     {
+      "date": "2026-10-31",
+      "sensor": "HLSL30",
+      "id": "HLS.L30.T52SBE.2026304T020523.v2.0"
+     },
+     {
+      "date": "2026-10-31",
+      "sensor": "HLSL30",
+      "id": "HLS.L30.T52SCE.2026304T020523.v2.0"
+     },
+     {
+      "date": "2026-11-02",
+      "sensor": "HLSS30",
+      "id": "HLS.S30.T52SBE.2026306T021831.v2.0"
+     }
+    ]
+   },
+   "candidates_all_pixels": {
+    "px_with_clear_optics": 239,
+    "share": {
+     "water_to_land": 0.243,
+     "veg_to_bare": 0.264,
+     "open_both": 0.075,
+     "other": 0.418
+    },
+    "main": "other",
+    "ndvi_before": 0.37,
+    "ndvi_after": 0.18,
+    "mndwi_before": -0.31,
+    "mndwi_after": -0.36
+   },
+   "control_pixels": {
+    "px_with_clear_optics": 1404593,
+    "share": {
+     "water_to_land": 0.013,
+     "veg_to_bare": 0.009,
+     "open_both": 0.027,
+     "other": 0.951
+    },
+    "main": "other",
+    "ndvi_before": 0.03,
+    "ndvi_after": -0.4,
+    "mndwi_before": -0.0,
+    "mndwi_after": 0.67
+   },
+   "control_land_pixels": {
+    "px_with_clear_optics": 707188,
+    "share": {
+     "water_to_land": 0.0,
+     "veg_to_bare": 0.017,
+     "open_both": 0.054,
+     "other": 0.929
+    },
+    "main": "other",
+    "ndvi_before": 0.39,
+    "ndvi_after": 0.35,
+    "mndwi_before": -0.38,
+    "mndwi_after": -0.43
+   },
+   "spots": {
+    "1": {
+     "px_with_clear_optics": 65,
+     "share": {
+      "water_to_land": 0.0,
+      "veg_to_bare": 0.831,
+      "open_both": 0.0,
+      "other": 0.169
+     },
+     "main": "veg_to_bare",
+     "ndvi_before": 0.59,
+     "ndvi_after": 0.1,
+     "mndwi_before": -0.42,
+     "mndwi_after": -0.27,
+     "clear_obs_summer": 7,
+     "clear_obs_autumn": 8
+    },
+    "2": {
+     "px_with_clear_optics": 43,
+     "share": {
+      "water_to_land": 0.116,
+      "veg_to_bare": 0.0,
+      "open_both": 0.0,
+      "other": 0.884
+     },
+     "main": "other",
+     "ndvi_before": 0.26,
+     "ndvi_after": 0.43,
+     "mndwi_before": -0.15,
+     "mndwi_after": -0.35,
+     "clear_obs_summer": 4,
+     "clear_obs_autumn": 8
+    },
+    "3": {
+     "px_with_clear_optics": 14,
+     "share": {
+      "water_to_land": 0.0,
+      "veg_to_bare": 0.0,
+      "open_both": 0.0,
+      "other": 1.0
+     },
+     "main": "other",
+     "ndvi_before": 0.42,
+     "ndvi_after": 0.41,
+     "mndwi_before": -0.57,
+     "mndwi_after": -0.62,
+     "clear_obs_summer": 7,
+     "clear_obs_autumn": 22
+    },
+    "4": {
+     "px_with_clear_optics": 11,
+     "share": {
+      "water_to_land": 1.0,
+      "veg_to_bare": 0.0,
+      "open_both": 0.0,
+      "other": 0.0
+     },
+     "main": "water_to_land",
+     "ndvi_before": -0.13,
+     "ndvi_after": 0.03,
+     "mndwi_before": 0.54,
+     "mndwi_after": -0.57,
+     "clear_obs_summer": 5,
+     "clear_obs_autumn": 8
+    },
+    "5": {
+     "px_with_clear_optics": 11,
+     "share": {
+      "water_to_land": 1.0,
+      "veg_to_bare": 0.0,
+      "open_both": 0.0,
+      "other": 0.0
+     },
+     "main": "water_to_land",
+     "ndvi_before": -0.11,
+     "ndvi_after": 0.01,
+     "mndwi_before": 0.46,
+     "mndwi_after": -0.55,
+     "clear_obs_summer": 4,
+     "clear_obs_autumn": 10
+    },
+    "6": {
+     "px_with_clear_optics": 11,
+     "share": {
+      "water_to_land": 0.0,
+      "veg_to_bare": 0.0,
+      "open_both": 0.0,
+      "other": 1.0
+     },
+     "main": "other",
+     "ndvi_before": 0.31,
+     "ndvi_after": 0.6,
+     "mndwi_before": -0.31,
+     "mndwi_after": -0.39,
+     "clear_obs_summer": 6,
+     "clear_obs_autumn": 12
+    },
+    "7": {
+     "px_with_clear_optics": 8,
+     "share": {
+      "water_to_land": 1.0,
+      "veg_to_bare": 0.0,
+      "open_both": 0.0,
+      "other": 0.0
+     },
+     "main": "water_to_land",
+     "ndvi_before": -0.14,
+     "ndvi_after": 0.01,
+     "mndwi_before": 0.07,
+     "mndwi_after": -0.13,
+     "clear_obs_summer": 6,
+     "clear_obs_autumn": 9
+    },
+    "8": {
+     "px_with_clear_optics": 7,
+     "share": {
+      "water_to_land": 0.0,
+      "veg_to_bare": 0.0,
+      "open_both": 1.0,
+      "other": 0.0
+     },
+     "main": "open_both",
+     "ndvi_before": 0.1,
+     "ndvi_after": 0.12,
+     "mndwi_before": -0.22,
+     "mndwi_after": -0.25,
+     "clear_obs_summer": 6,
+     "clear_obs_autumn": 8
+    },
+    "9": {
+     "px_with_clear_optics": 7,
+     "share": {
+      "water_to_land": 1.0,
+      "veg_to_bare": 0.0,
+      "open_both": 0.0,
+      "other": 0.0
+     },
+     "main": "water_to_land",
+     "ndvi_before": -0.05,
+     "ndvi_after": 0.01,
+     "mndwi_before": 0.39,
+     "mndwi_after": -0.53,
+     "clear_obs_summer": 5,
+     "clear_obs_autumn": 8
+    },
+    "10": {
+     "px_with_clear_optics": 6,
+     "share": {
+      "water_to_land": 1.0,
+      "veg_to_bare": 0.0,
+      "open_both": 0.0,
+      "other": 0.0
+     },
+     "main": "water_to_land",
+     "ndvi_before": -0.15,
+     "ndvi_after": 0.03,
+     "mndwi_before": 0.48,
+     "mndwi_after": -0.55,
+     "clear_obs_summer": 4,
+     "clear_obs_autumn": 9
+    },
+    "11": {
+     "px_with_clear_optics": 6,
+     "share": {
+      "water_to_land": 0.0,
+      "veg_to_bare": 0.0,
+      "open_both": 1.0,
+      "other": 0.0
+     },
+     "main": "open_both",
+     "ndvi_before": 0.17,
+     "ndvi_after": 0.13,
+     "mndwi_before": -0.41,
+     "mndwi_after": -0.35,
+     "clear_obs_summer": 7,
+     "clear_obs_autumn": 11
+    },
+    "12": {
+     "px_with_clear_optics": 6,
+     "share": {
+      "water_to_land": 0.0,
+      "veg_to_bare": 0.0,
+      "open_both": 0.0,
+      "other": 1.0
+     },
+     "main": "other",
+     "ndvi_before": 0.6,
+     "ndvi_after": 0.26,
+     "mndwi_before": -0.39,
+     "mndwi_after": -0.45,
+     "clear_obs_summer": 5,
+     "clear_obs_autumn": 12
+    },
+    "13": {
+     "px_with_clear_optics": 5,
+     "share": {
+      "water_to_land": 0.0,
+      "veg_to_bare": 0.0,
+      "open_both": 0.0,
+      "other": 1.0
+     },
+     "main": "other",
+     "ndvi_before": 0.49,
+     "ndvi_after": 0.38,
+     "mndwi_before": -0.15,
+     "mndwi_after": -0.39,
+     "clear_obs_summer": 5,
+     "clear_obs_autumn": 10
+    },
+    "14": {
+     "px_with_clear_optics": 5,
+     "share": {
+      "water_to_land": 1.0,
+      "veg_to_bare": 0.0,
+      "open_both": 0.0,
+      "other": 0.0
+     },
+     "main": "water_to_land",
+     "ndvi_before": 0.15,
+     "ndvi_after": 0.4,
+     "mndwi_before": 0.27,
+     "mndwi_after": -0.36,
+     "clear_obs_summer": 1,
+     "clear_obs_autumn": 7
+    },
+    "15": {
+     "px_with_clear_optics": 5,
+     "share": {
+      "water_to_land": 0.0,
+      "veg_to_bare": 0.0,
+      "open_both": 1.0,
+      "other": 0.0
+     },
+     "main": "open_both",
+     "ndvi_before": 0.09,
+     "ndvi_after": 0.07,
+     "mndwi_before": -0.27,
+     "mndwi_after": -0.2,
+     "clear_obs_summer": 5,
+     "clear_obs_autumn": 9
+    },
+    "16": {
+     "px_with_clear_optics": 5,
+     "share": {
+      "water_to_land": 0.0,
+      "veg_to_bare": 0.8,
+      "open_both": 0.0,
+      "other": 0.2
+     },
+     "main": "veg_to_bare",
+     "ndvi_before": 0.55,
+     "ndvi_after": 0.14,
+     "mndwi_before": -0.47,
+     "mndwi_after": -0.26,
+     "clear_obs_summer": 5,
+     "clear_obs_autumn": 9
+    },
+    "17": {
+     "px_with_clear_optics": 4,
+     "share": {
+      "water_to_land": 0.25,
+      "veg_to_bare": 0.0,
+      "open_both": 0.0,
+      "other": 0.75
+     },
+     "main": "other",
+     "ndvi_before": 0.3,
+     "ndvi_after": 0.41,
+     "mndwi_before": -0.15,
+     "mndwi_after": -0.37,
+     "clear_obs_summer": 3,
+     "clear_obs_autumn": 8
+    },
+    "18": {
+     "px_with_clear_optics": 4,
+     "share": {
+      "water_to_land": 1.0,
+      "veg_to_bare": 0.0,
+      "open_both": 0.0,
+      "other": 0.0
+     },
+     "main": "water_to_land",
+     "ndvi_before": 0.14,
+     "ndvi_after": 0.41,
+     "mndwi_before": 0.27,
+     "mndwi_after": -0.39,
+     "clear_obs_summer": 2,
+     "clear_obs_autumn": 7
+    },
+    "19": {
+     "px_with_clear_optics": 4,
+     "share": {
+      "water_to_land": 0.0,
+      "veg_to_bare": 0.0,
+      "open_both": 0.0,
+      "other": 1.0
+     },
+     "main": "other",
+     "ndvi_before": 0.41,
+     "ndvi_after": 0.36,
+     "mndwi_before": -0.36,
+     "mndwi_after": -0.38,
+     "clear_obs_summer": 5,
+     "clear_obs_autumn": 9
+    },
+    "20": {
+     "px_with_clear_optics": 4,
+     "share": {
+      "water_to_land": 0.0,
+      "veg_to_bare": 0.0,
+      "open_both": 0.0,
+      "other": 1.0
+     },
+     "main": "other",
+     "ndvi_before": 0.43,
+     "ndvi_after": 0.42,
+     "mndwi_before": -0.56,
+     "mndwi_after": -0.6,
+     "clear_obs_summer": 6,
+     "clear_obs_autumn": 9
+    },
+    "21": {
+     "px_with_clear_optics": 4,
+     "share": {
+      "water_to_land": 0.0,
+      "veg_to_bare": 1.0,
+      "open_both": 0.0,
+      "other": 0.0
+     },
+     "main": "veg_to_bare",
+     "ndvi_before": 0.54,
+     "ndvi_after": 0.14,
+     "mndwi_before": -0.47,
+     "mndwi_after": -0.23,
+     "clear_obs_summer": 5,
+     "clear_obs_autumn": 9
+    },
+    "22": {
+     "px_with_clear_optics": 4,
+     "share": {
+      "water_to_land": 0.0,
+      "veg_to_bare": 0.25,
+      "open_both": 0.0,
+      "other": 0.75
+     },
+     "main": "other",
+     "ndvi_before": 0.43,
+     "ndvi_after": 0.29,
+     "mndwi_before": -0.47,
+     "mndwi_after": -0.4,
+     "clear_obs_summer": 6,
+     "clear_obs_autumn": 9
+    }
+   }
+  },
+  "yongin": {
+   "granules": {
+    "summer": [
+     {
+      "date": "2026-06-09",
+      "sensor": "HLSL30",
+      "id": "HLS.L30.T52SCG.2026160T020357.v2.0"
+     },
+     {
+      "date": "2026-06-15",
+      "sensor": "HLSS30",
+      "id": "HLS.S30.T52SCG.2026166T021531.v2.0"
+     },
+     {
+      "date": "2026-06-16",
+      "sensor": "HLSL30",
+      "id": "HLS.L30.T52SCG.2026167T021014.v2.0"
+     }
+    ],
+    "autumn": [
+     {
+      "date": "2026-10-06",
+      "sensor": "HLSL30",
+      "id": "HLS.L30.T52SCG.2026279T021105.v2.0"
+     },
+     {
+      "date": "2026-10-07",
+      "sensor": "HLSL30",
+      "id": "HLS.L30.T52SCG.2026280T020500.v2.0"
+     },
+     {
+      "date": "2026-10-14",
+      "sensor": "HLSL30",
+      "id": "HLS.L30.T52SCG.2026287T021111.v2.0"
+     },
+     {
+      "date": "2026-10-15",
+      "sensor": "HLSL30",
+      "id": "HLS.L30.T52SCG.2026288T020454.v2.0"
+     },
+     {
+      "date": "2026-10-15",
+      "sensor": "HLSS30",
+      "id": "HLS.S30.T52SCG.2026288T022131.v2.0"
+     },
+     {
+      "date": "2026-10-22",
+      "sensor": "HLSL30",
+      "id": "HLS.L30.T52SCG.2026295T021103.v2.0"
+     },
+     {
+      "date": "2026-10-23",
+      "sensor": "HLSL30",
+      "id": "HLS.L30.T52SCG.2026296T020458.v2.0"
+     },
+     {
+      "date": "2026-10-23",
+      "sensor": "HLSS30",
+      "id": "HLS.S30.T52SCG.2026296T021731.v2.0"
+     },
+     {
+      "date": "2026-10-30",
+      "sensor": "HLSL30",
+      "id": "HLS.L30.T52SCG.2026303T021107.v2.0"
+     },
+     {
+      "date": "2026-10-31",
+      "sensor": "HLSL30",
+      "id": "HLS.L30.T52SCG.2026304T020459.v2.0"
+     },
+     {
+      "date": "2026-11-02",
+      "sensor": "HLSS30",
+      "id": "HLS.S30.T52SCG.2026306T021831.v2.0"
+     }
+    ]
+   },
+   "candidates_all_pixels": {
+    "px_with_clear_optics": 25,
+    "share": {
+     "water_to_land": 0.0,
+     "veg_to_bare": 0.0,
+     "open_both": 0.92,
+     "other": 0.08
+    },
+    "main": "open_both",
+    "ndvi_before": 0.13,
+    "ndvi_after": 0.1,
+    "mndwi_before": -0.3,
+    "mndwi_after": -0.31
+   },
+   "control_pixels": {
+    "px_with_clear_optics": 47248,
+    "share": {
+     "water_to_land": 0.113,
+     "veg_to_bare": 0.004,
+     "open_both": 0.033,
+     "other": 0.849
+    },
+    "main": "other",
+    "ndvi_before": 0.45,
+    "ndvi_after": 0.35,
+    "mndwi_before": -0.27,
+    "mndwi_after": -0.45
+   },
+   "control_land_pixels": {
+    "px_with_clear_optics": 35975,
+    "share": {
+     "water_to_land": 0.0,
+     "veg_to_bare": 0.006,
+     "open_both": 0.043,
+     "other": 0.951
+    },
+    "main": "other",
+    "ndvi_before": 0.51,
+    "ndvi_after": 0.4,
+    "mndwi_before": -0.36,
+    "mndwi_after": -0.47
+   },
+   "spots": {
+    "1": {
+     "px_with_clear_optics": 15,
+     "share": {
+      "water_to_land": 0.0,
+      "veg_to_bare": 0.0,
+      "open_both": 1.0,
+      "other": 0.0
+     },
+     "main": "open_both",
+     "ndvi_before": 0.13,
+     "ndvi_after": 0.1,
+     "mndwi_before": -0.29,
+     "mndwi_after": -0.32,
+     "clear_obs_summer": 3,
+     "clear_obs_autumn": 10
+    },
+    "2": {
+     "px_with_clear_optics": 0,
+     "clear_obs_summer": 0,
+     "clear_obs_autumn": 11
+    },
+    "3": {
+     "px_with_clear_optics": 6,
+     "share": {
+      "water_to_land": 0.0,
+      "veg_to_bare": 0.0,
+      "open_both": 1.0,
+      "other": 0.0
+     },
+     "main": "open_both",
+     "ndvi_before": 0.13,
+     "ndvi_after": 0.09,
+     "mndwi_before": -0.3,
+     "mndwi_after": -0.28,
+     "clear_obs_summer": 1,
+     "clear_obs_autumn": 10
+    },
+    "4": {
+     "px_with_clear_optics": 4,
+     "share": {
+      "water_to_land": 0.0,
+      "veg_to_bare": 0.0,
+      "open_both": 0.5,
+      "other": 0.5
+     },
+     "main": "open_both",
+     "ndvi_before": 0.17,
+     "ndvi_after": 0.2,
+     "mndwi_before": -0.4,
+     "mndwi_after": -0.34,
+     "clear_obs_summer": 3,
+     "clear_obs_autumn": 9
+    }
+   }
+  }
+ }
+}
