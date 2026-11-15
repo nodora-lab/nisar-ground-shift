@@ -1,7 +1,7 @@
 // Ground Shift web map. SI note: drafted with SI assistance (Claude) and reviewed by the team.
 (async function () {
   const C = window.CONTENT;
-  const data = await fetch("data/sites.json?v=11").then(r => r.json());
+  const data = await fetch("data/sites.json?v=12").then(r => r.json());
   const state = { site: null, i: 0, layer: "rgb", compare: false, a: 0, split: 0.5, timer: null };
   const $ = id => document.getElementById(id);
   const fmt = d => new Date(d + "T00:00:00Z").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
@@ -27,6 +27,7 @@
   const map = L.map("map", { zoomControl: false, attributionControl: true, minZoom: 8, maxZoom: 16, zoomSnap: 0.25 });
   L.control.zoom({ position: "bottomright" }).addTo(map);
   L.control.scale({ position: "bottomright", imperial: false, maxWidth: 140 }).addTo(map);
+  map.on("popupopen", () => $("legend").classList.add("dimmed")); map.on("popupclose", () => $("legend").classList.remove("dimmed"));
   L.tileLayer("https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}", { maxZoom: 16, attribution: "Basemap © Esri, HERE, Garmin, © OpenStreetMap contributors" }).addTo(map);
   map.createPane("before"); map.getPane("before").style.zIndex = 410;
   map.createPane("after"); map.getPane("after").style.zIndex = 420;

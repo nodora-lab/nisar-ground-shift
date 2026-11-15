@@ -172,3 +172,4 @@ button{font:inherit;color:inherit;cursor:pointer}
 .legend{font-size:13px}
 .tl-track button span{font-size:10px}
 .leaflet-popup-pane{z-index:950}.map .leaflet-pane.leaflet-popup-pane{z-index:950}
+.legend.dimmed{opacity:0;pointer-events:none;transition:opacity .2s}
