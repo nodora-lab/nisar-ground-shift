@@ -1,7 +1,7 @@
 // Ground Shift web map. SI note: drafted with SI assistance (Claude) and reviewed by the team.
 (async function () {
   const C = window.CONTENT;
-  const data = await fetch("data/sites.json?v=9").then(r => r.json());
+  const data = await fetch("data/sites.json?v=10").then(r => r.json());
   const state = { site: null, i: 0, layer: "rgb", compare: false, a: 0, split: 0.5, timer: null };
   const $ = id => document.getElementById(id);
   const fmt = d => new Date(d + "T00:00:00Z").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
@@ -25,7 +25,8 @@
 
   // ---------- Map ----------
   const map = L.map("map", { zoomControl: false, attributionControl: true, minZoom: 8, maxZoom: 16, zoomSnap: 0.25 });
-  L.control.zoom({ position: "topright" }).addTo(map);
+  L.control.zoom({ position: "bottomright" }).addTo(map);
+  L.control.scale({ position: "bottomright", imperial: false, maxWidth: 140 }).addTo(map);
   L.tileLayer("https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}", { maxZoom: 16, attribution: "Basemap © Esri, HERE, Garmin, © OpenStreetMap contributors" }).addTo(map);
   map.createPane("before"); map.getPane("before").style.zIndex = 410;
   map.createPane("after"); map.getPane("after").style.zIndex = 420;
@@ -35,15 +36,38 @@
 
   const S = () => data.sites.find(s => s.id === state.site);
   const url = (i, layer) => layer === "new" ? `data/${state.site}/new.webp` : `data/${state.site}/${S().dates[i].date}_${layer}.webp`;
-  let spots = null;
+  let spots = null, spotMarkers = [];
+  function spark(p, s) {
+    // evidence sparkline: patch-median HH on every date; BETA shaded, summer/autumn test windows marked
+    const W = 280, H = 90, P = 6, ds = s.dates, t0 = Date.parse(ds[0].date), t1 = Date.parse(ds[ds.length - 1].date);
+    const v = p.series, lo = Math.floor(Math.min(...v, -12) - 1), hi = Math.ceil(Math.max(...v, 0) + 1);
+    const X = d => P + ((Date.parse(d) - t0) / (t1 - t0)) * (W - 2 * P), Y = x => H - P - ((x - lo) / (hi - lo)) * (H - 2 * P);
+    const b0 = ds.findIndex(d => d.collection !== "BETA");
+    let g = `<rect x="${P}" y="0" width="${X(ds[b0 - 1].date) - P + 3}" height="${H}" fill="rgba(138,152,179,.12)"/><text x="${P + 2}" y="10" fill="#8A98B3" font-size="8" font-family="IBM Plex Mono">BETA · uncalibrated</text>`;
+    const win = (a, b) => `<rect x="${X(a) - 3}" y="0" width="${X(b) - X(a) + 6}" height="${H}" fill="rgba(79,209,197,.10)"/>`;
+    g += win(s.new_early[0], s.new_early[2]) + win(s.new_late[0], s.new_late[2]);
+    g += `<line x1="${P}" x2="${W - P}" y1="${Y(-8)}" y2="${Y(-8)}" stroke="#4DA3FF" stroke-dasharray="3 3" stroke-opacity=".7"/><line x1="${P}" x2="${W - P}" y1="${Y(-3)}" y2="${Y(-3)}" stroke="#FF9F43" stroke-dasharray="3 3" stroke-opacity=".7"/>`;
+    const seg = (a, b) => ds.slice(a, b).map((d, k) => `${k ? "L" : "M"}${X(d.date).toFixed(1)},${Y(v[a + k]).toFixed(1)}`).join(" ");
+    g += `<path d="${seg(0, b0)}" fill="none" stroke="#8A98B3" stroke-width="1.5"/><path d="${seg(b0, ds.length)}" fill="none" stroke="#E8EEF8" stroke-width="2"/>`;
+    ds.forEach((d, k) => g += `<circle cx="${X(d.date)}" cy="${Y(v[k])}" r="2.2" fill="${k < b0 ? "#8A98B3" : "#E8EEF8"}"/>`);
+    g += `<text x="${W - P}" y="${Y(-3) - 3}" text-anchor="end" fill="#FF9F43" font-size="8" font-family="IBM Plex Mono">−3 dB</text><text x="${W - P}" y="${Y(-8) + 10}" text-anchor="end" fill="#4DA3FF" font-size="8" font-family="IBM Plex Mono">−8 dB</text>`;
+    return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${g}</svg>`;
+  }
+  function evidence(p, s) {
+    const crops = p.crop ? `<div class="ev-crops"><figure><img src="data/${s.id}/spots/${p.id}_before.webp" alt="RGB on ${s.new_early[0]}"><figcaption>${fmt(s.new_early[0])}</figcaption></figure><figure><img src="data/${s.id}/spots/${p.id}_after.webp" alt="RGB on ${s.new_late[2]}"><figcaption>${fmt(s.new_late[2])}</figcaption></figure></div>` : "";
+    return `<div class="ev"><p class="ev-k">CANDIDATE #${p.id} · ${p.ha} ha · ${p.lat.toFixed(4)}°N ${p.lon.toFixed(4)}°E</p>
+      ${crops}<p class="ev-k">PATCH-MEDIAN HH, ALL 18 DATES (TEAL = TEST WINDOWS)</p>${spark(p, s)}
+      <p class="ev-n">Radar brightening that persisted. It may be construction, but this needs an independent check.</p>
+      <a href="https://www.openstreetmap.org/?mlat=${p.lat}&mlon=${p.lon}#map=16/${p.lat}/${p.lon}" target="_blank" rel="noopener">Check on OpenStreetMap ↗</a></div>`;
+  }
   function drawSpots() {
-    if (spots) { map.removeLayer(spots); spots = null; }
+    if (spots) { map.removeLayer(spots); spots = null; spotMarkers = []; }
     if (state.layer !== "new") return;
     const s = S(); spots = L.layerGroup().addTo(map);
-    (s.new_spots || []).forEach((p, k) => {
-      L.circleMarker([p.lat, p.lon], { radius: 9 + Math.min(10, p.ha * 2), color: "#FF9F43", weight: 2, fillOpacity: 0.08 })
-        .bindPopup(`<b>New strong reflector #${k + 1}</b><br>≈ ${p.ha} ha<br>HH ${p.early_db} dB (Jun–Jul) → ${p.late_db} dB (Oct–Nov 2026)<br><a href="https://www.openstreetmap.org/#map=16/${p.lat}/${p.lon}" target="_blank" rel="noopener">Open in a map ↗</a>`)
-        .addTo(spots);
+    (s.new_spots || []).forEach(p => {
+      const m = L.circleMarker([p.lat, p.lon], { radius: 9 + Math.min(10, p.ha * 2), color: "#FF9F43", weight: 2, fillOpacity: 0.08 })
+        .bindPopup(() => evidence(p, s), { maxWidth: 320, className: "ev-pop" }).addTo(spots);
+      spotMarkers.push(m);
     });
   }
 
@@ -76,6 +100,9 @@
       ovBefore = L.imageOverlay(url(state.a, (state.layer === "chg" || state.layer === "new") ? "rgb" : state.layer), b, { pane: "before" }).addTo(map);
       clip();
       $("labA").textContent = `BEFORE · ${fmt(s.dates[state.a].date)} (${s.dates[state.a].collection})`;
+      const mix = (s.dates[state.a].collection === "BETA") !== (s.dates[state.i].collection === "BETA");
+      $("compareLabels").classList.toggle("warn", mix);
+      if (mix) $("labA").textContent += " ⚠ uncalibrated vs calibrated: brightness differences may be processing";
       $("labB").textContent = `AFTER · ${fmt(s.dates[state.i].date)} (${s.dates[state.i].collection})`;
     } else {
       map.getPane("after").style.clipPath = "";
@@ -125,7 +152,7 @@
     const vals = s.dates.flatMap(d => [d.hh_db, d.hv_db]).filter(v => v != null);
     const lo = Math.floor(Math.min(...vals) - 1), hi = Math.ceil(Math.max(...vals) + 1);
     const X = d => P + ((Date.parse(d) - t0) / (t1 - t0)) * (W - 2 * P), Y = v => H - P - ((v - lo) / (hi - lo)) * (H - 2 * P);
-    const line = key => s.dates.filter(d => d[key] != null).map((d, k) => `${k ? "L" : "M"}${X(d.date).toFixed(1)},${Y(d[key]).toFixed(1)}`).join(" ");
+    const line = key => { const out = []; let prev = null; s.dates.forEach(d => { if (d[key] == null) { prev = null; return; } const br = prev === null || (prev === "BETA") !== (d.collection === "BETA"); out.push(`${br ? "M" : "L"}${X(d.date).toFixed(1)},${Y(d[key]).toFixed(1)}`); prev = d.collection; }); return out.join(" "); };
     let g = `<text x="${P}" y="12" fill="#8A98B3" font-size="9" font-family="IBM Plex Mono">${hi} dB</text><text x="${P}" y="${H - 8}" fill="#8A98B3" font-size="9" font-family="IBM Plex Mono">${lo} dB</text>`;
     const b0 = s.dates.findIndex(d => d.collection !== "BETA");
     if (b0 > 0) g += `<rect x="${P}" y="0" width="${X(s.dates[b0 - 1].date) - P + 4}" height="${H}" fill="rgba(138,152,179,.08)"/><text x="${P + 2}" y="${H / 2}" fill="#8A98B3" font-size="8" font-family="IBM Plex Mono">BETA</text>`;
@@ -152,7 +179,7 @@
     $("siteSignals").innerHTML = c.signals.map(([col, a, b]) => `<li><i style="background:${col}"></i><div><b>${a}</b><span>${b}</span></div></li>`).join("");
     $("siteWhy").textContent = c.why;
     $("siteFinding").innerHTML = (c.finding || "").replace("{ha}", s.new_ha).replace("{n}", s.new_spot_count) + " <u>Show on map →</u>";
-    $("siteFinding").onclick = () => { const b = document.querySelector('#layerSwitch [data-layer="new"]'); b && b.click(); };
+    $("siteFinding").onclick = () => { const b = document.querySelector('#layerSwitch [data-layer="new"]'); b && b.click(); setTimeout(() => spotMarkers[0] && spotMarkers[0].openPopup(), 300); };
     $("siteFacts").innerHTML = (c.facts || []).map(([t, u, src]) => `<li>${t} <a href="${u}" target="_blank" rel="noopener">${src}</a></li>`).join("");
     map.fitBounds(s.bounds, { paddingTopLeft: [window.innerWidth > 820 ? 410 : 0, 72], paddingBottomRight: [window.innerWidth > 820 ? 20 : 0, window.innerWidth > 820 ? 150 : 260] });
     buildTrack(); draw();

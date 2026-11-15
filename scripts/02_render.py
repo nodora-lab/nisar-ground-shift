@@ -102,38 +102,56 @@ def render_one(site, date, ref_date):
             "frac_brighter": frac_up, "frac_darker": frac_dn}
 
 
-# "New built" layer: persistent new strong reflectors using calibrated dates only.
-# Dim in all early-summer dates (max HH <= NEW_EARLY_MAX dB) and bright in all autumn dates (min HH >= NEW_LATE_MIN dB).
-# Requiring every date in both windows to agree removes most crop-season and wind effects.
+# Persistent HH-brightening candidates (calibrated PROVISIONAL/VALIDATED dates only).
+# A pixel is a candidate when HH is <= EARLY_MAX dB on ALL three early-summer dates and >= LATE_MIN dB on ALL three
+# autumn dates. Candidates are grouped into patches (8-connected after a 1-pixel dilation, >= MIN_PX original pixels).
+# This flags radar brightening that persisted; it does NOT prove construction (see the method page).
 NEW_EARLY = ["2026-06-23", "2026-07-05", "2026-07-17"]
 NEW_LATE = ["2026-10-09", "2026-10-21", "2026-11-02"]
-NEW_EARLY_MAX, NEW_LATE_MIN = -8.0, -3.0
+NEW_EARLY_MAX, NEW_LATE_MIN, MIN_PX = -8.0, -3.0, 4
+CROP = 48  # half-size of evidence crops in pixels (~1.1 x 1.3 km box)
 
 
-def render_new(site):
+def render_new(site, all_dates):
     from scipy.ndimage import binary_dilation, label, find_objects
-    cfg = SITES[site]; bb = cfg["bbox"]
-    stack = lambda ds: np.stack([to_db(load_on_grid(SUB / f"{site}_{d}_HH.tif", bb)) for d in ds])
-    E, La = stack(NEW_EARLY), stack(NEW_LATE)
+    cfg = SITES[site]; bb = cfg["bbox"]; d = WEB / site; (d / "spots").mkdir(exist_ok=True)
+    hh = {dt: to_db(load_on_grid(SUB / f"{site}_{dt}_HH.tif", bb)) for dt in all_dates}
+    E = np.stack([hh[x] for x in NEW_EARLY]); La = np.stack([hh[x] for x in NEW_LATE])
     new = (np.nanmin(La, 0) >= NEW_LATE_MIN) & (np.nanmax(E, 0) <= NEW_EARLY_MAX)
-    lab, n = label(binary_dilation(new, iterations=1))
-    px_m2 = (RES * 111320) * (RES * 111320 * np.cos(np.radians((bb[1] + bb[3]) / 2)))
+    lab, n = label(binary_dilation(new, iterations=1), structure=np.ones((3, 3)))
+    lat0 = (bb[1] + bb[3]) / 2
+    dy_m, dx_m = RES * 111320, RES * 111320 * np.cos(np.radians(lat0))
     spots = []
     for k, sl in enumerate(find_objects(lab), start=1):
         m = (lab[sl] == k) & new[sl]
-        if m.sum() < 4:
+        if m.sum() < MIN_PX:
             continue
         ys, xs = np.nonzero(m); y0, x0 = sl[0].start, sl[1].start
-        lat = bb[3] - (y0 + ys.mean() + 0.5) * RES; lon = bb[0] + (x0 + xs.mean() + 0.5) * RES
-        e = float(np.nanmedian(np.nanmean(E, 0)[sl][m])); l = float(np.nanmedian(np.nanmean(La, 0)[sl][m]))
-        spots.append({"lat": round(lat, 5), "lon": round(lon, 5), "ha": round(float(m.sum()) * px_m2 / 1e4, 2), "early_db": round(e, 1), "late_db": round(l, 1)})
-    spots.sort(key=lambda d: -d["ha"])
+        cy, cx = int(round(y0 + ys.mean())), int(round(x0 + xs.mean()))
+        lat = bb[3] - (cy + 0.5) * RES; lon = bb[0] + (cx + 0.5) * RES
+        series = [round(float(np.nanmedian(hh[dt][sl][m])), 2) for dt in all_dates]
+        spots.append({"lat": round(lat, 5), "lon": round(lon, 5), "px": int(m.sum()),
+                      "ha": round(float(m.sum()) * dx_m * dy_m / 1e4, 2), "series": series, "_c": (cy, cx)})
+    spots.sort(key=lambda q: -q["px"])
+    H, W = new.shape
+    for i, q in enumerate(spots, start=1):
+        q["id"] = i; cy, cx = q.pop("_c")
+        if i <= 12:  # evidence crops: first calibrated date vs latest date, same RGB stretch as the map
+            ya, yb, xa, xb = max(0, cy - CROP), min(H, cy + CROP), max(0, cx - CROP), min(W, cx + CROP)
+            for tag, dt in (("before", NEW_EARLY[0]), ("after", NEW_LATE[-1])):
+                im = Image.open(d / f"{dt}_rgb.webp").convert("RGB").crop((xa, ya, xb, yb)).resize(((xb - xa) * 2, (yb - ya) * 2), Image.NEAREST)
+                im.save(d / "spots" / f"{i}_{tag}.webp", "WEBP", quality=85)
+            q["crop"] = True
     show = binary_dilation(new, iterations=2)
-    img = np.zeros(new.shape + (4,), dtype="uint8")
-    img[show] = [255, 159, 67, 235]
-    save_rgba(img, WEB / site / "new.webp")
-    print(site, "new built px", int(new.sum()), "spots", len(spots), flush=True)
-    return {"new_ha": round(float(new.sum()) * px_m2 / 1e4, 1), "new_spot_count": len(spots), "new_spots": spots[:12], "new_early": NEW_EARLY, "new_late": NEW_LATE}
+    img = np.zeros(new.shape + (4,), dtype="uint8"); img[show] = [255, 159, 67, 235]
+    save_rgba(img, d / "new.webp")
+    gj = {"type": "FeatureCollection", "properties": {"site": site, "rule": f"HH<= {NEW_EARLY_MAX} dB on {NEW_EARLY} and HH>= {NEW_LATE_MIN} dB on {NEW_LATE}", "pixel_spacing_deg": RES, "dates": all_dates},
+          "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [q["lon"], q["lat"]]},
+                        "properties": {"id": q["id"], "pixels": q["px"], "area_ha": q["ha"], "hh_median_db": q["series"]}} for q in spots]}
+    json.dump(gj, open(WEB / f"{site}_candidates.geojson", "w"), indent=1)
+    print(site, "candidate px", int(new.sum()), "patches", len(spots), flush=True)
+    return {"new_ha": round(float(new.sum()) * dx_m * dy_m / 1e4, 1), "new_spot_count": len(spots), "new_spots": spots[:12],
+            "new_early": NEW_EARLY, "new_late": NEW_LATE}
 
 
 def main():
@@ -151,11 +169,13 @@ def main():
             dates = sorted(set(dates)); (WEB / site).mkdir(exist_ok=True)
             # change reference = first calibrated (PROVISIONAL or later) date; BETA data is uncalibrated
             ref_date = next((x for x in dates if collection_of(x) != "BETA"), dates[0])
-            jobs[site] = (ref_date, [ex.submit(render_one, site, dt, ref_date) for dt in dates], ex.submit(render_new, site))
+            jobs[site] = (ref_date, [ex.submit(render_one, site, dt, ref_date) for dt in dates], None)
+        for site in jobs:
+            jobs[site] = (jobs[site][0], [f.result() for f in jobs[site][1]], ex.submit(render_new, site, sorted(set(index[site]))))
         for site, (ref_date, futs, fnew) in jobs.items():
             cfg = SITES[site]; w, s, e, n = cfg["bbox"]
             out["sites"].append({"id": site, "name": cfg["name"], "bounds": [[s, w], [n, e]], "ref_date": ref_date,
-                                 "dates": [f.result() for f in futs], **fnew.result()})
+                                 "dates": futs, **fnew.result()})
     json.dump(out, open(WEB / "sites.json", "w"), indent=1)
 
 
