@@ -1,7 +1,7 @@
 // Ground Shift web map. SI note: drafted with SI assistance (Claude) and reviewed by the team.
 (async function () {
   const C = window.CONTENT;
-  const data = await fetch("data/sites.json?v=8").then(r => r.json());
+  const data = await fetch("data/sites.json?v=9").then(r => r.json());
   const state = { site: null, i: 0, layer: "rgb", compare: false, a: 0, split: 0.5, timer: null };
   const $ = id => document.getElementById(id);
   const fmt = d => new Date(d + "T00:00:00Z").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
@@ -138,7 +138,7 @@
 
   function drawLegend() {
     const L_ = JSON.parse(JSON.stringify(C.legend[state.layer])); const s_ = S();
-    L_.items = L_.items.map(([c, x]) => [c, x.replace("{ha}", s_.new_ha).replace("{n}", (s_.new_spots || []).length)]);
+    L_.items = L_.items.map(([c, x]) => [c, x.replace("{ha}", s_.new_ha).replace("{n}", s_.new_spot_count)]);
     $("legend").innerHTML = `<p>${L_.title}</p>` + L_.items.map(([c, t]) => c.startsWith("linear") ? `<div style="display:block">${t}<div class="ramp" style="background:${c}"></div></div>` : `<div><i style="background:${c}"></i>${t}</div>`).join("");
   }
 
@@ -151,7 +151,7 @@
     $("siteKicker").textContent = c.kicker; $("siteTitle").textContent = c.title; $("siteMeta").textContent = c.meta;
     $("siteSignals").innerHTML = c.signals.map(([col, a, b]) => `<li><i style="background:${col}"></i><div><b>${a}</b><span>${b}</span></div></li>`).join("");
     $("siteWhy").textContent = c.why;
-    $("siteFinding").innerHTML = (c.finding || "").replace("{ha}", s.new_ha).replace("{n}", (s.new_spots || []).length) + " <u>Show on map →</u>";
+    $("siteFinding").innerHTML = (c.finding || "").replace("{ha}", s.new_ha).replace("{n}", s.new_spot_count) + " <u>Show on map →</u>";
     $("siteFinding").onclick = () => { const b = document.querySelector('#layerSwitch [data-layer="new"]'); b && b.click(); };
     $("siteFacts").innerHTML = (c.facts || []).map(([t, u, src]) => `<li>${t} <a href="${u}" target="_blank" rel="noopener">${src}</a></li>`).join("");
     map.fitBounds(s.bounds, { paddingTopLeft: [window.innerWidth > 820 ? 410 : 0, 72], paddingBottomRight: [window.innerWidth > 820 ? 20 : 0, window.innerWidth > 820 ? 150 : 260] });

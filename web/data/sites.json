@@ -162,6 +162,7 @@
     }
    ],
    "new_ha": 17.8,
+   "new_spot_count": 21,
    "new_spots": [
     {
      "lat": 35.72789,
@@ -420,6 +421,7 @@
     }
    ],
    "new_ha": 3.5,
+   "new_spot_count": 4,
    "new_spots": [
     {
      "lat": 37.14706,

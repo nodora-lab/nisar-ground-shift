@@ -133,7 +133,7 @@ def render_new(site):
     img[show] = [255, 159, 67, 235]
     save_rgba(img, WEB / site / "new.webp")
     print(site, "new built px", int(new.sum()), "spots", len(spots), flush=True)
-    return {"new_ha": round(float(new.sum()) * px_m2 / 1e4, 1), "new_spots": spots[:12], "new_early": NEW_EARLY, "new_late": NEW_LATE}
+    return {"new_ha": round(float(new.sum()) * px_m2 / 1e4, 1), "new_spot_count": len(spots), "new_spots": spots[:12], "new_early": NEW_EARLY, "new_late": NEW_LATE}
 
 
 def main():
