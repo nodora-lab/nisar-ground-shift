@@ -9,6 +9,7 @@ window.CONTENT = {
       chip: "Saemangeum", color: "var(--teal)",
       short: "Tidal flats → reclaimed land, roads and ports",
       kicker: "STUDY AREA 1 OF 2",
+      finding: "Radar finding: about {ha} ha of new strong reflectors appeared in {n} spots between summer and autumn 2026, mostly on reclaimed land inside the sea wall and in the northern industrial area.",
       title: "Saemangeum: a tidal flat becoming land",
       meta: "West coast of Korea · 35.8°N, 126.6°E · NISAR descending track 133, frame 70",
       signals: [
@@ -28,6 +29,7 @@ window.CONTENT = {
       chip: "Yongin", color: "var(--up)",
       short: "Farmland and hills → semiconductor cluster",
       kicker: "STUDY AREA 2 OF 2",
+      finding: "Radar finding: the largest new-structure spots our method found, with no location hints, fall on the SK hynix cluster site in Wonsam-myeon, and one falls inside the national complex area near Namsa-eup, where site preparation began on Oct 28, 2026.",
       title: "Yongin: farmland making way for chip factories",
       meta: "South of Seoul · 37.1°N, 127.3°E · same NISAR track and dates",
       signals: [
